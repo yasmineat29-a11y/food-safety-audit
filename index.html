@@ -3,151 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISO 22002-100 & 22002-2 Catering Audit</title>
+    <title>ISO 22002 Audit Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --teal: #008080; --bg: #f9f9f9; --text: #333; }
-        body { font-family: 'Segoe UI', sans-serif; padding: 15px; background: var(--bg); color: var(--text); }
-        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid var(--teal); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h1 { color: var(--teal); margin-top: 0; }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { background: var(--teal); color: white; padding: 12px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; vertical-align: middle; }
-        select, input[type="text"], input[type="time"], input[type="number"], textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background: transparent; cursor: pointer; text-align-last: center; }
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        button { background: var(--teal); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
-        .score-green { color: #28a745; font-weight: bold; }
-        .score-yellow { color: #ffc107; font-weight: bold; }
-        .score-red { color: #dc3545; font-weight: bold; }
-        input[type="file"] { display: none; }
-        .custom-file-upload { display: inline-block; padding: 6px 12px; cursor: pointer; color: var(--teal); font-size: 1.5rem; text-align: center; width: 100%; }
-        .thumbnail { max-width: 150px; max-height: 150px; display: block; margin-top: 5px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; }
-        .chart-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 768px) { .chart-wrapper { grid-template-columns: 1fr; } }
-        @media print { .no-print { display: none; } .chart-wrapper { display: block; page-break-inside: avoid; } }
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background-color: #008080; color: white; padding: 10px; }
+        td { border: 1px solid #ddd; padding: 8px; }
+        .major-input { text-align: center; }
+        canvas { max-width: 400px; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h1>Food Safety Audit</h1>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
-        <div><label><strong>Date:</strong></label><input type="text" id="auditDate" placeholder="YYYY-MM-DD"></div>
-        <div><label><strong>Time:</strong></label><input type="time" id="auditTime"></div>
-        <div><label><strong>Location:</strong></label><input type="text" id="auditLoc" placeholder="Enter Location"></div>
-    </div>
-    <div style="font-size: 1.5rem; margin-top: 15px;">Score: <span id="finalScore" class="score-green">100</span>%</div>
-    <div class="btn-group no-print">
-        <button onclick="toggleLang()">EN / AR</button>
-        <button onclick="window.print()">Print Report</button>
-    </div>
+    <div style="font-size: 20px; font-weight: bold; color: #008080;">Final Score: <span id="finalScore">100</span>%</div>
 </div>
 
-<div class="card" style="overflow-x: auto;">
+<div class="card">
     <table id="auditTable">
-        <thead><tr><th>Requirement</th><th>Result</th><th>Team</th><th>Major?</th><th>Finding</th><th>Image</th></tr></thead>
-        <tbody id="tableBody"></tbody>
+        <thead>
+            <tr><th>Category</th><th>Requirement</th><th>Clause</th><th>Result</th><th>Team</th><th>Major?</th></tr>
+        </thead>
+        <tbody id="auditBody"></tbody>
     </table>
 </div>
 
-<div class="card chart-wrapper">
-    <div><canvas id="trendChart"></canvas></div>
-    <div><canvas id="teamChart"></canvas></div>
-</div>
-
-<div class="card no-print">
-    <h3>Update History</h3>
-    <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
-        <input type="text" id="histDate" placeholder="YYYY-MM-DD" style="flex: 1;">
-        <input type="number" id="histScore" placeholder="Score (%)" style="flex: 1;">
-        <button onclick="addHistory()">Add Entry</button>
-    </div>
-</div>
-
 <script>
-const auditItems = [
-  { category: "Food Environment", req: "Boundaries of the site/facilities: Identified and maintained to prevent contamination.", ar: "حدود الموقع/المرافق: يجب تحديدها وصيانتها لمنع التلوث.", clause: "4.1" },
-  { category: "Food Environment", req: "Environment: Consideration of potential contamination sources from local environment.", ar: "البيئة: مراعاة مصادر التلوث المحتملة من البيئة المحلية.", clause: "4.2" },
-  { category: "Food Environment", req: "Construction and layout: Designed for purpose, maintained to avoid hazards.", ar: "البناء والتصميم: تصميم المباني للغرض من العملية، وصيانتها لتجنب المخاطر.", clause: "4.3" },
-  { category: "Food Handling Area", req: "General: Facilities designed to minimize cross-contamination, provide flow, and facilitate hygiene.", ar: "عام: تصميم المرافق لتقليل التلوث المتبادل، وتوفير التدفق المناسب، وتسهيل الظروف الصحية.", clause: "" },
-  { category: "Food Handling Area", req: "Internal structures and fittings: Suitable materials, maintainable, prevent foreign matter/pests.", ar: "الهياكل الداخلية والتجهيزات: مواد مناسبة، قابلة للصيانة، تمنع دخول الأجسام الغريبة/الآفات.", clause: "5.2" },
-  { category: "Food Equipment and utilities", req: "Location of equipment: Facilitate hygiene, monitoring, and access for operation/cleaning.", ar: "موقع المعدات: تسهيل الممارسات الصحية، والمراقبة، والوصول للتشغيل والتنظيف.", clause: "5.3" },
-  { category: "Food Equipment and utilities", req: "Storage: Defined requirements, protection from dust/condensation/pests, segregation.", ar: "التخزين: متطلبات محددة، حماية من الغبار/التكثيف/الآفات، الفصل المناسب.", clause: "5.4" },
-  { category: "Food contact liquids", req: "Water, ice, steam: Suitable quality/pressure/temp. Ice handling must protect from contamination.", ar: "المياه والثلج والبخار: جودة/ضغط/درجة حرارة مناسبة. يجب حماية الثلج من التلوث أثناء التعامل معه.", clause: "6.2" },
-  { category: "Ventillation", req: "Air and ventilation: Prevent flow from contaminated to clean areas. Accessible for cleaning/maintenance.", ar: "الهواء والتهوية: منع تدفق الهواء من المناطق الملوثة إلى النظيفة. سهولة الوصول للتنظيف والصيانة.", clause: "6.3" },
-  { category: "Food contact gasses", req: "Compressed air/gases: Appropriate for operation, maintained to prevent contamination.", ar: "الهواء المضغوط والغازات: مناسبة للعملية، مصانة لمنع التلوث.", clause: "6.4" },
-  { category: "Light Facilities", req: "Light: Adequate lighting for operation, detection of defects, and inspection for cleanliness.", ar: "الإضاءة: إضاءة كافية للتشغيل، واكتشاف العيوب، وفحص النظافة.", clause: "6.5" },
-  { category: "Pest Control", req: "Pest Control: Documented programme to prevent access, harbourage, and proliferation.", ar: "مكافحة الآفات: برنامج موثق لمنع الدخول والمأوى والتكاثر.", clause: "7.1-7.6" },
-  { category: "Waste Management", req: "Waste Management: Programme to identify, collect, remove waste. No accumulation.", ar: "إدارة النفايات: برنامج للتعريف والجمع والإزالة. لا يُسمح بتراكم النفايات.", clause: "8." },
-  { category: "Waste Management", req: "Recycling/Reuse: Designed to prevent contamination. Proper identification and storage.", ar: "إعادة التدوير/الاستخدام: مصممة لمنع التلوث. التعريف والتخزين السليم.", clause: "8.2" },
-  { category: "Waste Management", req: "Waste containers: Adequate number/capacity, hands-free covers in prep areas.", ar: "حاويات النفايات: عدد وسعة كافيان، أغطية تعمل بدون استخدام اليدين في مناطق التحضير.", clause: "8.3" },
-  { category: "Food Equipment", req: "Equipment suitability: Hygienically designed, easy to clean/maintain, food-grade materials.", ar: "ملاءمة المعدات: تصميم صحي، سهولة التنظيف/الصيانة، مواد صالحة للغذاء.", clause: "9.1" },
-  { category: "Food Equipment", req: "Equipment capability: Capable of controlling identified food safety hazards.", ar: "قدرة المعدات: قادرة على التحكم في مخاطر سلامة الغذاء المحددة.", clause: "9.2" },
-  { category: "Food Equipment", req: "Maintenance: Documented preventative/corrective programmes. Food safety priority.", ar: "الصيانة: برامج وقائية/تصحيحية موثقة. إعطاء الأولوية لسلامة الغذاء.", clause: "9.3" },
-  { category: "Food Purchasing/ Receiving", req: "Purchasing/Incoming: Supplier selection, hazard-based assessment, inspection of incoming materials.", ar: "المشتريات/المواد الواردة: اختيار الموردين، تقييم مبني على المخاطر، فحص المواد الواردة.", clause: "10.1-10.3" },
-  { category: "Food Storage", req: "Storage/Dispatch/Transport: Protection against damage/contamination, temp control, hygiene of vehicles.", ar: "التخزين/الشحن/النقل: الحماية من التلف/التلوث، التحكم في درجة الحرارة، نظافة المركبات.", clause: "11.1-11.3" },
-  { category: "Food Handling", req: "Prevention of contamination: Systems to detect/prevent/control/minimize cross-contamination.", ar: "منع التلوث: أنظمة للكشف/المنع/التحكم/التقليل من التلوث المتبادل.", clause: "12.1" },
-  { category: "Food Handling", req: "Allergen Control: Protect against cross-contact by cleaning, segregation, dedicated tools.", ar: "التحكم في مسببات الحساسية: الحماية من التلامس المتبادل عبر التنظيف، الفصل، أدوات مخصصة.", clause: "12.2" },
-  { category: "Cleaning and Disinfection", req: "Cleaning/Disinfection: Program defining what/when/who/how/verification.", ar: "التنظيف والتطهير: برنامج يحدد ماذا/متى/من/كيف/التحقق.", clause: "13.1-13.3" },
-  { category: "Personal Hygiene", req: "Personal Hygiene/Behavior: Handwashing, workwear, health status, behavior, visitor control.", ar: "النظافة الشخصية/السلوك: غسل اليدين، ملابس العمل، الحالة الصحية، السلوك، التحكم في الزوار.", clause: "14.1-14.8" },
-  { category: "Food Labeling", req: "Product/Consumer Info: Adequate information for safe handling, preparation, storage, use.", ar: "معلومات المنتج/المستهلك: معلومات كافية للتداول، التحضير، التخزين، الاستخدام الآمن.", clause: "15" },
-  { category: "Food Fraud/ Food Defence", req: "Food Defence/Fraud: Threat/Vulnerability assessments and mitigation plans.", ar: "دفاع الغذاء/الاحتيال: تقييم التهديدات/نقاط الضعف وخطط التخفيف.", clause: "16.1-16.3" },
-  { category: "Food Handling, Temp Control", req: "Preparation - Thawing: Physical barriers, controlled temp (<=4°C), no refreezing.", ar: "التحضير - الإذابة: حواجز فيزيائية، درجة حرارة محكومة (<= 4 درجة مئوية)، عدم إعادة التجميد.", clause: "17.1" },
-  { category: "Food Handling, Temp Control", req: "Preparation - Cooking: Adequate duration/core temp, fat/oil quality control.", ar: "التحضير - الطهي: مدة/درجة حرارة قلب كافية، التحكم في جودة الدهون/الزيوت.", clause: "17.2" },
-  { category: "Temp Control", req: "Preparation - Cooling: Cool core temp to 10°C within 2 hours, store at <=4°C.", ar: "التحضير - التبريد: تبريد درجة حرارة القلب إلى 10 درجات مئوية خلال ساعتين، التخزين <= 4 درجات مئوية.", clause: "17.3" },
-  { category: "Temp Control", req: "Preparation - Reheating: Rapid reheating to core temp of 75°C within 1 hour.", ar: "التحضير - إعادة التسخين: إعادة تسخين سريع لدرجة حرارة قلب 75 درجة مئوية خلال ساعة.", clause: "17.4" },
-  { category: "Food Handling, Temp Control", req: "Preparation - Service: Protect from contamination, maintain hot (>=63°C) or cold (<=4°C).", ar: "التحضير - الخدمة: الحماية من التلوث، الحفاظ على الساخن (>= 63 درجة مئوية) أو البارد (<= 4 درجات مئوية).", clause: "17.5" }
+// Data imported from your DOCX file
+const auditData = [
+    { cat: "Food Environment", req: "Boundaries of the site/facilities", clause: "4.1" },
+    { cat: "Food Environment", req: "Environment: Potential contamination sources", clause: "4.2" },
+    { cat: "Food Environment", req: "Construction and layout", clause: "4.3" },
+    { cat: "Food Handling Area", req: "General: Minimize cross-contamination", clause: "" },
+    { cat: "Food Handling Area", req: "Internal structures and fittings", clause: "5.2" },
+    { cat: "Food Equipment", req: "Location of equipment", clause: "5.3" },
+    { cat: "Food Equipment", req: "Storage requirements", clause: "5.4" },
+    { cat: "Food contact liquids", req: "Water, ice, steam quality", clause: "6.2" },
+    { cat: "Ventillation", req: "Air flow and ventilation", clause: "6.3" },
+    { cat: "Food contact gasses", req: "Compressed air/gases", clause: "6.4" },
+    { cat: "Light Facilities", req: "Adequate lighting", clause: "6.5" },
+    { cat: "Pest Control", req: "Pest Control Programme", clause: "7.1-7.6" },
+    { cat: "Waste Management", req: "Waste identification/removal", clause: "8" },
+    { cat: "Waste Management", req: "Recycling/Reuse", clause: "8.2" },
+    { cat: "Waste Management", req: "Waste containers", clause: "8.3" },
+    { cat: "Food Equipment", req: "Equipment suitability", clause: "9.1" },
+    { cat: "Food Equipment", req: "Equipment capability", clause: "9.2" },
+    { cat: "Food Equipment", req: "Maintenance programmes", clause: "9.3" },
+    { cat: "Purchasing/Receiving", req: "Supplier selection/inspection", clause: "10.1-10.3" },
+    { cat: "Food Storage", req: "Storage/Dispatch/Transport", clause: "11.1-11.3" },
+    { cat: "Food Handling", req: "Prevention of contamination", clause: "12.1" },
+    { cat: "Food Handling", req: "Allergen Control", clause: "12.2" },
+    { cat: "Cleaning", req: "Cleaning/Disinfection programme", clause: "13.1-13.3" },
+    { cat: "Personal Hygiene", req: "Hygiene/Behavior/Handwashing", clause: "14.1-14.8" },
+    { cat: "Food Labeling", req: "Product/Consumer Info", clause: "15" },
+    { cat: "Food Fraud/Defence", req: "Threat/Vulnerability assessments", clause: "16.1-16.3" },
+    { cat: "Temp Control", req: "Preparation - Thawing", clause: "17.1" },
+    { cat: "Temp Control", req: "Preparation - Cooking", clause: "17.2" },
+    { cat: "Temp Control", req: "Preparation - Cooling", clause: "17.3" },
+    { cat: "Temp Control", req: "Preparation - Reheating", clause: "17.4" },
+    { cat: "Temp Control", req: "Preparation - Service", clause: "17.5" }
 ];
-// (Rest of the JS functions remain identical to preserve existing features)
-let lang = 'en';
-let history = { dates: ['2026-07-02'], scores: [100] };
-function toggleLang() { lang = lang === 'en' ? 'ar' : 'en'; renderTable(); }
+
 function renderTable() {
-    const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
-    auditItems.forEach((item) => {
+    const tbody = document.getElementById('auditBody');
+    auditData.forEach(item => {
         tbody.innerHTML += `<tr>
-            <td><strong>${item.category}</strong> (Clause: ${item.clause})<br>${lang === 'en' ? item.req : item.ar}</td>
+            <td>${item.cat}</td><td>${item.req}</td><td>${item.clause}</td>
             <td><select class="res" onchange="calculate()"><option value="0">Yes</option><option value="1">No</option><option value="2">N/A</option></select></td>
-            <td><select class="team"><option>HP</option><option>CL</option><option>M</option></select></td>
-            <td style="text-align: center;"><input type="checkbox" class="major" onchange="calculate()" disabled></td>
-            <td><textarea rows="2"></textarea></td>
-            <td><label class="custom-file-upload">📷<input type="file" accept="image/*" onchange="previewImage(this)"></label></td>
+            <td><select><option>HP</option><option>CL</option><option>M</option></select></td>
+            <td class="major-input"><input type="checkbox" class="major" onchange="calculate()" disabled></td>
         </tr>`;
     });
 }
-function previewImage(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const container = input.parentElement.parentElement;
-            const existing = container.querySelector('img');
-            if(existing) existing.remove();
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.className = 'thumbnail';
-            container.appendChild(img);
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
+
 function calculate() {
     let score = 100;
     document.querySelectorAll('tr').forEach(tr => {
         const res = tr.querySelector('.res').value;
         const major = tr.querySelector('.major');
-        if (res === "1") { major.disabled = false; score -= (major.checked ? 10 : 1); }
-        else { major.disabled = true; major.checked = false; }
+        if (res === "1") {
+            major.disabled = false;
+            score -= (major.checked ? 10 : 1);
+        } else {
+            major.disabled = true; major.checked = false;
+        }
     });
     document.getElementById('finalScore').innerText = Math.max(0, score);
-    updateCharts(Math.max(0, score));
 }
-function updateCharts(score) { history.scores[history.scores.length - 1] = score; trendChart.update(); teamChart.update(); }
-function addHistory() { const d = document.getElementById('histDate').value; const s = document.getElementById('histScore').value; if(d && s) { history.dates.push(d); history.scores.push(parseInt(s)); trendChart.update(); } }
-const trendCtx = document.getElementById('trendChart').getContext('2d');
-let trendChart = new Chart(trendCtx, { type: 'line', data: { labels: history.dates, datasets: [{ label: 'Score (%)', data: history.scores, borderColor: '#008080' }] }, options: { scales: { y: { min: 0, max: 100 } } } });
-const teamCtx = document.getElementById('teamChart').getContext('2d');
-let teamChart = new Chart(teamCtx, { type: 'bar', data: { labels: ['HP', 'CL', 'M'], datasets: [{ label: 'Team Score', data: [100, 100, 100], backgroundColor: '#008080' }] }, options: { scales: { y: { min: 0, max: 100 } } } });
+
 renderTable();
 </script>
 </body>
