@@ -76,42 +76,36 @@
 
 <script>
 const auditItems = [
-  { category: "Food Environment", req: "Boundaries of the site/facilities: Identified and maintained to prevent contamination.", ar: "حدود الموقع/المرافق: يجب تحديدها وصيانتها لمنع التلوث.", clause: "4.1" },
-  { category: "Food Environment", req: "Environment: Consideration of potential contamination sources from local environment.", ar: "البيئة: مراعاة مصادر التلوث المحتملة من البيئة المحلية.", clause: "4.2" },
-  { category: "Food Environment", req: "Construction and layout: Designed for purpose, maintained to avoid hazards.", ar: "البناء والتصميم: تصميم المباني للغرض من العملية، وصيانتها لتجنب المخاطر.", clause: "4.3" },
-  { category: "Food Handling Area", req: "General: Facilities designed to minimize cross-contamination, provide flow, and facilitate hygiene.", ar: "عام: تصميم المرافق لتقليل التلوث المتبادل، وتوفير التدفق المناسب، وتسهيل الظروف الصحية.", clause: "" },
-  { category: "Food Handling Area", req: "Internal structures and fittings: Suitable materials, maintainable, prevent foreign matter/pests.", ar: "الهياكل الداخلية والتجهيزات: مواد مناسبة، قابلة للصيانة، تمنع دخول الأجسام الغريبة/الآفات.", clause: "5.2" },
-  { category: "Food Equipment and utilities", req: "Location of equipment: Facilitate hygiene, monitoring, and access for operation/cleaning.", ar: "موقع المعدات: تسهيل الممارسات الصحية، والمراقبة، والوصول للتشغيل والتنظيف.", clause: "5.3" },
-  { category: "Food Equipment and utilities", req: "Storage: Defined requirements, protection from dust/condensation/pests, segregation.", ar: "التخزين: متطلبات محددة، حماية من الغبار/التكثيف/الآفات، الفصل المناسب.", clause: "5.4" },
-  { category: "Food contact liquids", req: "Water, ice, steam: Suitable quality/pressure/temp. Ice handling must protect from contamination.", ar: "المياه والثلج والبخار: جودة/ضغط/درجة حرارة مناسبة. يجب حماية الثلج من التلوث أثناء التعامل معه.", clause: "6.2" },
-  { category: "Ventillation", req: "Air and ventilation: Prevent flow from contaminated to clean areas. Accessible for cleaning/maintenance.", ar: "الهواء والتهوية: منع تدفق الهواء من المناطق الملوثة إلى النظيفة. سهولة الوصول للتنظيف والصيانة.", clause: "6.3" },
-  { category: "Food contact gasses", req: "Compressed air/gases: Appropriate for operation, maintained to prevent contamination.", ar: "الهواء المضغوط والغازات: مناسبة للعملية، مصانة لمنع التلوث.", clause: "6.4" },
-  { category: "Light Facilities", req: "Light: Adequate lighting for operation, detection of defects, and inspection for cleanliness.", ar: "الإضاءة: إضاءة كافية للتشغيل، واكتشاف العيوب، وفحص النظافة.", clause: "6.5" },
-  { category: "Pest Control", req: "Pest Control: Documented programme to prevent access, harbourage, and proliferation.", ar: "مكافحة الآفات: برنامج موثق لمنع الدخول والمأوى والتكاثر.", clause: "7.1-7.6" },
-  { category: "Waste Management", req: "Waste Management: Programme to identify, collect, remove waste. No accumulation.", ar: "إدارة النفايات: برنامج للتعريف والجمع والإزالة. لا يُسمح بتراكم النفايات.", clause: "8." },
-  { category: "Waste Management", req: "Recycling/Reuse: Designed to prevent contamination. Proper identification and storage.", ar: "إعادة التدوير/الاستخدام: مصممة لمنع التلوث. التعريف والتخزين السليم.", clause: "8.2" },
-  { category: "Waste Management", req: "Waste containers: Adequate number/capacity, hands-free covers in prep areas.", ar: "حاويات النفايات: عدد وسعة كافيان، أغطية تعمل بدون استخدام اليدين في مناطق التحضير.", clause: "8.3" },
-  { category: "Food Equipment", req: "Equipment suitability: Hygienically designed, easy to clean/maintain, food-grade materials.", ar: "ملاءمة المعدات: تصميم صحي، سهولة التنظيف/الصيانة، مواد صالحة للغذاء.", clause: "9.1" },
-  { category: "Food Equipment", req: "Equipment capability: Capable of controlling identified food safety hazards.", ar: "قدرة المعدات: قادرة على التحكم في مخاطر سلامة الغذاء المحددة.", clause: "9.2" },
-  { category: "Food Equipment", req: "Maintenance: Documented preventative/corrective programmes. Food safety priority.", ar: "الصيانة: برامج وقائية/تصحيحية موثقة. إعطاء الأولوية لسلامة الغذاء.", clause: "9.3" },
-  { category: "Food Purchasing/ Receiving", req: "Purchasing/Incoming: Supplier selection, hazard-based assessment, inspection of incoming materials.", ar: "المشتريات/المواد الواردة: اختيار الموردين، تقييم مبني على المخاطر، فحص المواد الواردة.", clause: "10.1-10.3" },
-  { category: "Food Storage", req: "Storage/Dispatch/Transport: Protection against damage/contamination, temp control, hygiene of vehicles.", ar: "التخزين/الشحن/النقل: الحماية من التلف/التلوث، التحكم في درجة الحرارة، نظافة المركبات.", clause: "11.1-11.3" },
-  { category: "Food Handling", req: "Prevention of contamination: Systems to detect/prevent/control/minimize cross-contamination.", ar: "منع التلوث: أنظمة للكشف/المنع/التحكم/التقليل من التلوث المتبادل.", clause: "12.1" },
-  { category: "Food Handling", req: "Allergen Control: Protect against cross-contact by cleaning, segregation, dedicated tools.", ar: "التحكم في مسببات الحساسية: الحماية من التلامس المتبادل عبر التنظيف، الفصل، أدوات مخصصة.", clause: "12.2" },
-  { category: "Cleaning and Disinfection", req: "Cleaning/Disinfection: Program defining what/when/who/how/verification.", ar: "التنظيف والتطهير: برنامج يحدد ماذا/متى/من/كيف/التحقق.", clause: "13.1-13.3" },
-  { category: "Personal Hygiene", req: "Personal Hygiene/Behavior: Handwashing, workwear, health status, behavior, visitor control.", ar: "النظافة الشخصية/السلوك: غسل اليدين، ملابس العمل، الحالة الصحية، السلوك، التحكم في الزوار.", clause: "14.1-14.8" },
-  { category: "Food Labeling", req: "Product/Consumer Info: Adequate information for safe handling, preparation, storage, use.", ar: "معلومات المنتج/المستهلك: معلومات كافية للتداول، التحضير، التخزين، الاستخدام الآمن.", clause: "15" },
-  { category: "Food Fraud/ Food Defence", req: "Food Defence/Fraud: Threat/Vulnerability assessments and mitigation plans.", ar: "دفاع الغذاء/الاحتيال: تقييم التهديدات/نقاط الضعف وخطط التخفيف.", clause: "16.1-16.3" },
-  { category: "Food Handling, Temp Control", req: "Preparation - Thawing: Physical barriers, controlled temp (<=4°C), no refreezing.", ar: "التحضير - الإذابة: حواجز فيزيائية، درجة حرارة محكومة (<= 4 درجة مئوية)، عدم إعادة التجميد.", clause: "17.1" },
-  { category: "Food Handling, Temp Control", req: "Preparation - Cooking: Adequate duration/core temp, fat/oil quality control.", ar: "التحضير - الطهي: مدة/درجة حرارة قلب كافية، التحكم في جودة الدهون/الزيوت.", clause: "17.2" },
-  { category: "Temp Control", req: "Preparation - Cooling: Cool core temp to 10°C within 2 hours, store at <=4°C.", ar: "التحضير - التبريد: تبريد درجة حرارة القلب إلى 10 درجات مئوية خلال ساعتين، التخزين <= 4 درجات مئوية.", clause: "17.3" },
-  { category: "Temp Control", req: "Preparation - Reheating: Rapid reheating to core temp of 75°C within 1 hour.", ar: "التحضير - إعادة التسخين: إعادة تسخين سريع لدرجة حرارة قلب 75 درجة مئوية خلال ساعة.", clause: "17.4" },
-  { category: "Food Handling, Temp Control", req: "Preparation - Service: Protect from contamination, maintain hot (>=63°C) or cold (<=4°C).", ar: "التحضير - الخدمة: الحماية من التلوث، الحفاظ على الساخن (>= 63 درجة مئوية) أو البارد (<= 4 درجات مئوية).", clause: "17.5" }
+  { category: "Food Environment", req: "Boundaries of the site/facilities: Identified and maintained.", ar: "حدود الموقع/المرافق: يجب تحديدها وصيانتها.", clause: "4.1" },
+  { category: "Food Environment", req: "Environment: Consideration of potential contamination sources.", ar: "البيئة: مراعاة مصادر التلوث المحتملة.", clause: "4.2" },
+  { category: "Construction", req: "Layout: Designed for purpose, maintained to avoid hazards.", ar: "البناء والتصميم: تصميم المباني للغرض من العملية.", clause: "4.3" },
+  { category: "Food Handling Area", req: "Internal structures: Suitable materials, maintainable.", ar: "الهياكل الداخلية: مواد مناسبة، قابلة للصيانة.", clause: "5.2" },
+  { category: "Equipment", req: "Location: Facilitate hygiene, monitoring, and access.", ar: "موقع المعدات: تسهيل الممارسات الصحية.", clause: "5.3" },
+  { category: "Storage", req: "Storage: Requirements defined, protection from contamination.", ar: "التخزين: متطلبات محددة، حماية من التلوث.", clause: "5.4" },
+  { category: "Utilities", req: "Water, ice and steam: Quality and quantity suitable.", ar: "المياه والثلج والبخار: جودة وكمية مناسبة.", clause: "6.2" },
+  { category: "Ventilation", req: "Air and ventilation: Prevent flow from contaminated areas.", ar: "الهواء والتهوية: منع تدفق الهواء من المناطق الملوثة.", clause: "6.3" },
+  { category: "Compressed Air", req: "Compressed air/gases: Appropriate, maintained.", ar: "الهواء المضغوط والغازات: مناسبة ومصانة.", clause: "6.4" },
+  { category: "Light", req: "Light: Adequate for operation and inspection.", ar: "الإضاءة: كافية للتشغيل والفحص.", clause: "6.5" },
+  { category: "Pest Control", req: "Pest Control: Documented programme to prevent access.", ar: "مكافحة الآفات: برنامج موثق لمنع الدخول.", clause: "7.1-7.6" },
+  { category: "Waste", req: "Waste Management: Program to identify, collect, remove.", ar: "إدارة النفايات: برنامج للتعريف والجمع والإزالة.", clause: "8." },
+  { category: "Equipment", req: "Equipment suitability: Hygienically designed.", ar: "ملاءمة المعدات: تصميم صحي.", clause: "9.1" },
+  { category: "Maintenance", req: "Maintenance: Preventative/corrective programmes.", ar: "الصيانة: برامج وقائية/تصحيحية.", clause: "9.3" },
+  { category: "Purchasing", req: "Purchasing: Supplier selection, hazard assessment.", ar: "المشتريات: اختيار الموردين، تقييم المخاطر.", clause: "10.1-10.3" },
+  { category: "Storage/Transport", req: "Storage/Transport: Protection against contamination.", ar: "التخزين/النقل: الحماية من التلوث.", clause: "11.1-11.3" },
+  { category: "Contamination", req: "Prevention: Systems to detect/prevent cross-contamination.", ar: "منع التلوث: أنظمة للكشف/المنع.", clause: "12.1" },
+  { category: "Allergen", req: "Allergen Control: Cleaning, segregation.", ar: "التحكم في الحساسية: التنظيف والفصل.", clause: "12.2" },
+  { category: "Cleaning", req: "Cleaning: Program defining what/when/who/how.", ar: "التنظيف: برنامج محدد للتنظيف.", clause: "13.1-13.3" },
+  { category: "Hygiene", req: "Personal Hygiene: Handwashing, workwear, behavior.", ar: "النظافة الشخصية: غسل اليدين، ملابس العمل.", clause: "14.1-14.8" },
+  { category: "Labeling", req: "Info: Adequate information for safe handling.", ar: "معلومات المنتج: معلومات كافية للتداول.", clause: "15" },
+  { category: "Food Defence", req: "Defence/Fraud: Threat/Vulnerability assessments.", ar: "دفاع الغذاء: تقييم التهديدات ونقاط الضعف.", clause: "16.1-16.3" },
+  { category: "Preparation", req: "Thawing/Cooking/Cooling/Service: Controlled temps.", ar: "التحضير: درجات حرارة محكومة.", clause: "17.1-17.5" }
 ];
 
 let lang = 'en';
 let history = { dates: ['2026-07-02'], scores: [100] };
+
 function toggleLang() { lang = lang === 'en' ? 'ar' : 'en'; renderTable(); }
+
 function renderTable() {
     const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
     auditItems.forEach((item) => {
@@ -125,6 +119,7 @@ function renderTable() {
         </tr>`;
     });
 }
+
 function previewImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -140,39 +135,53 @@ function previewImage(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
 function calculate() {
-    let score = 100;
-    document.querySelectorAll('tr').forEach(tr => {
-        const res = tr.querySelector('.res').value;
-        const major = tr.querySelector('.major');
-        if (res === "1") { 
-            major.disabled = false; 
-            score -= (major.checked ? 10 : 1); 
-        } else { 
-            major.disabled = true; 
-            major.checked = false; 
+    let totalScore = 100;
+    
+    document.querySelectorAll('#tableBody tr').forEach(tr => {
+        const resSelect = tr.querySelector('.res');
+        const majorCheckbox = tr.querySelector('.major');
+        
+        if (resSelect.value === "1") { // No
+            majorCheckbox.disabled = false;
+            totalScore -= (majorCheckbox.checked ? 10 : 1);
+        } else {
+            majorCheckbox.disabled = true;
+            majorCheckbox.checked = false;
         }
     });
-    const finalScore = Math.max(0, score);
+
+    const finalScore = Math.max(0, totalScore);
     const scoreEl = document.getElementById('finalScore');
     scoreEl.innerText = finalScore;
     
-    // Set score class color
     scoreEl.className = finalScore >= 90 ? 'score-green' : finalScore >= 70 ? 'score-yellow' : 'score-red';
     
     updateCharts(finalScore);
 }
+
 function updateCharts(score) { 
     history.scores[history.scores.length - 1] = score; 
     trendChart.data.datasets[0].data = history.scores;
     trendChart.update(); 
-    teamChart.update(); 
 }
-function addHistory() { const d = document.getElementById('histDate').value; const s = document.getElementById('histScore').value; if(d && s) { history.dates.push(d); history.scores.push(parseInt(s)); trendChart.update(); } }
+
+function addHistory() { 
+    const d = document.getElementById('histDate').value; 
+    const s = document.getElementById('histScore').value; 
+    if(d && s) { 
+        history.dates.push(d); 
+        history.scores.push(parseInt(s)); 
+        trendChart.update(); 
+    } 
+}
+
 const trendCtx = document.getElementById('trendChart').getContext('2d');
 let trendChart = new Chart(trendCtx, { type: 'line', data: { labels: history.dates, datasets: [{ label: 'Score (%)', data: history.scores, borderColor: '#008080' }] }, options: { scales: { y: { min: 0, max: 100 } } } });
 const teamCtx = document.getElementById('teamChart').getContext('2d');
 let teamChart = new Chart(teamCtx, { type: 'bar', data: { labels: ['HP', 'CL', 'M'], datasets: [{ label: 'Team Score', data: [100, 100, 100], backgroundColor: '#008080' }] }, options: { scales: { y: { min: 0, max: 100 } } } });
+
 renderTable();
 </script>
 </body>
