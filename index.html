@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISO 22002-2:2025 Catering Audit</title>
+    <title>ISO 22002-100 & 22002-2 Catering Audit</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --teal: #008080; --bg: #f9f9f9; --text: #333; }
@@ -29,7 +29,7 @@
 <body>
 
 <div class="card">
-    <h1>Food Safety Audit (ISO 22002-2:2025 Catering)</h1>
+    <h1>Food Safety Audit (Comprehensive Checklist)</h1>
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
         <div>
@@ -89,22 +89,225 @@
 </div>
 
 <script>
-// Requirements based strictly on ISO 22002-2:2025 (Catering) and ISO 22002-100:2025
+// Complete Integrated ISO Audit Items[span_0](start_span)[span_0](end_span)
 const auditItems = [
-    [span_0](start_span){en: "Boundaries & Environment: Facilities designed to minimize contamination. Drainage systems prevent contamination risk.[span_0](end_span)", ar: "الحدود والبيئة: تصميم المرافق لتقليل التلوث. أنظمة الصرف تمنع خطر التلوث."},
-    {en: "Utilities (Water/Ice): Potable water supply adequate. [span_1](start_span)[span_2](start_span)Ice used in food contact is protected from contamination.[span_1](end_span)[span_2](end_span)", ar: "المرافق (الماء/الثلج): إمدادات مياه صالحة للشرب مناسبة. حماية الثلج الملامس للغذاء من التلوث."},
-    {en: "Pest Control: Documented program in place. [span_3](start_span)[span_4](start_span)Traps/detectors prevent product contamination.[span_3](end_span)[span_4](end_span)", ar: "مكافحة الآفات: برنامج موثق. الفخاخ/أجهزة الكشف تمنع تلوث المنتج."},
-    {en: "Waste Management: Collecting bins in prep areas have hands-free covers. [span_5](start_span)[span_6](start_span)Grease traps located outside food prep areas.[span_5](end_span)[span_6](end_span)", ar: "إدارة النفايات: سلال التجميع في مناطق التحضير لها أغطية تفتح بدون لمس. مصائد الدهون خارج مناطق التحضير."},
-    [span_7](start_span){en: "Used Oil: Used oil and cooking fat stored in suitably identified covered containers until removal.[span_7](end_span)", ar: "الزيت المستعمل: تخزين الزيت ودهون الطبخ المستعملة في حاويات مغطاة ومحددة حتى إزالتها."},
-    {en: "Equipment: Portable equipment (spoons, pots) protected from contamination. [span_8](start_span)[span_9](start_span)Food-grade lubricants used.[span_8](end_span)[span_9](end_span)", ar: "المعدات: حماية المعدات المحمولة (ملاعق، أواني) من التلوث. استخدام زيوت تشحيم آمنة غذائياً."},
-    {en: "Allergen Control: Segregation and/or dedicated tools used. [span_10](start_span)[span_11](start_span)Allergen information available to consumers.[span_10](end_span)[span_11](end_span)", ar: "التحكم في مسببات الحساسية: العزل و/أو استخدام أدوات مخصصة. توفير معلومات الحساسية للمستهلكين."},
-    {en: "Hygiene & Clothing: Aprons not washed/dried in prep areas. Masks used if necessary. [span_12](start_span)[span_13](start_span)Hair enclosed.[span_12](end_span)[span_13](end_span)", ar: "النظافة والملابس: عدم غسل/تجفيف المرايل في مناطق التحضير. استخدام الكمامات عند الضرورة. تغطية الشعر بالكامل."},
-    {en: "Handwashing & Gloves: Hands washed at different prep stages. Torn gloves discarded. [span_14](start_span)[span_15](start_span)Gloves do not replace handwashing.[span_14](end_span)[span_15](end_span)", ar: "غسل اليدين والقفازات: غسل اليدين في مراحل التحضير المختلفة. التخلص من القفازات الممزقة. القفازات لا تغني عن غسل اليدين."},
-    [span_16](start_span){en: "Personnel Behaviour: Personal belongings (clothes, office materials) not placed in food storage/handling areas.[span_16](end_span)", ar: "سلوك الموظفين: عدم وضع المتعلقات الشخصية (ملابس، أدوات مكتبية) في مناطق التخزين/التحضير."},
-    {en: "Preparation (Thawing & Cooling): Thawed food not refrozen. [span_17](start_span)[span_18](start_span)Cooked food cooled to 10°C within 2 hours.[span_17](end_span)[span_18](end_span)", ar: "التحضير (الإذابة والتبريد): عدم إعادة تجميد الأغذية المذابة. تبريد الأكل المطبوخ إلى 10 درجات مئوية خلال ساعتين."},
-    {en: "Reheating & Oil: Reheated food reaches 75°C within 1 hour. [span_19](start_span)[span_20](start_span)Cooking oil not heated above 180°C.[span_19](end_span)[span_20](end_span)", ar: "إعادة التسخين والزيت: وصول الأكل المعاد تسخينه لـ 75 درجة مئوية خلال ساعة. عدم تسخين زيت الطبخ فوق 180 درجة مئوية."},
-    {en: "Food Service: Food temps kept ≤4°C or ≥63°C. [span_21](start_span)[span_22](start_span)Employees handling payments do not simultaneously handle food.[span_21](end_span)[span_22](end_span)", ar: "تقديم الطعام: درجات حرارة الأكل 4 مئوية أو أقل، أو 63 مئوية أو أعلى. موظفو الدفع لا يلمسون الطعام في نفس الوقت."},
-    [span_23](start_span)[span_24](start_span){en: "Food Defence & Fraud: Threat and vulnerability assessments documented and mitigation plans implemented.[span_23](end_span)[span_24](end_span)", ar: "الدفاع عن الغذاء والاحتيال: توثيق تقييمات التهديدات ونقاط الضعف وتنفيذ خطط التخفيف."}
+  {
+    "category": "Food Environment",
+    "requirement_content": "Boundaries of the site/facilities: Identified and maintained to prevent contamination.",
+    "arabic_translation": "حدود الموقع/المرافق: يجب تحديدها وصيانتها لمنع التلوث.",
+    "source": "ISO 22002-100",
+    "clause": "4.1"
+  },
+  {
+    "category": "Food Environment",
+    "requirement_content": "Environment: Consideration of potential contamination sources from local environment.",
+    "arabic_translation": "البيئة: مراعاة مصادر التلوث المحتملة من البيئة المحلية.",
+    "source": "ISO 22002-100",
+    "clause": "4.2"
+  },
+  {
+    "category": "Food Environment",
+    "requirement_content": "Construction and layout: Designed for purpose, maintained to avoid hazards.",
+    "arabic_translation": "البناء والتصميم: تصميم المباني للغرض من العملية، وصيانتها لتجنب المخاطر.",
+    "source": "ISO 22002-100",
+    "clause": "4.3"
+  },
+  {
+    "category": "Food Handling Area",
+    "requirement_content": "General: Facilities designed to minimize cross-contamination, provide flow, and facilitate hygiene.",
+    "arabic_translation": "عام: تصميم المرافق لتقليل التلوث المتبادل، وتوفير التدفق المناسب، وتسهيل الظروف الصحية.",
+    "source": "ISO",
+    "clause": ""
+  },
+  {
+    "category": "Food Handling Area",
+    "requirement_content": "Internal structures and fittings: Suitable materials, maintainable, prevent foreign matter/pests.",
+    "arabic_translation": "الهياكل الداخلية والتجهيزات: مواد مناسبة، قابلة للصيانة، تمنع دخول الأجسام الغريبة/الآفات.",
+    "source": "ISO 22002-100",
+    "clause": "5.2"
+  },
+  {
+    "category": "Food Equipment and utilities",
+    "requirement_content": "Location of equipment: Facilitate hygiene, monitoring, and access for operation/cleaning.",
+    "arabic_translation": "موقع المعدات: تسهيل الممارسات الصحية، والمراقبة، والوصول للتشغيل والتنظيف.",
+    "source": "ISO 22002-100",
+    "clause": "5.3"
+  },
+  {
+    "category": "Food Equipment and utilities",
+    "requirement_content": "Storage: Defined requirements, protection from dust/condensation/pests, segregation.",
+    "arabic_translation": "التخزين: متطلبات محددة، حماية من الغبار/التكثيف/الآفات، الفصل المناسب.",
+    "source": "ISO 22002-100",
+    "clause": "5.4"
+  },
+  {
+    "category": "Food contact liquids",
+    "requirement_content": "Water, ice, steam: Suitable quality/pressure/temp. Ice handling must protect from contamination.",
+    "arabic_translation": "المياه والثلج والبخار: جودة/ضغط/درجة حرارة مناسبة. يجب حماية الثلج من التلوث أثناء التعامل معه.",
+    "source": "ISO 22002-100; ISO 22002-2",
+    "clause": "6.2"
+  },
+  {
+    "category": "Ventillation",
+    "requirement_content": "Air and ventilation: Prevent flow from contaminated to clean areas. Accessible for cleaning/maintenance.",
+    "arabic_translation": "الهواء والتهوية: منع تدفق الهواء من المناطق الملوثة إلى النظيفة. سهولة الوصول للتنظيف والصيانة.",
+    "source": "ISO 22002-100",
+    "clause": "6.3"
+  },
+  {
+    "category": "Food contact gasses",
+    "requirement_content": "Compressed air/gases: Appropriate for operation, maintained to prevent contamination.",
+    "arabic_translation": "الهواء المضغوط والغازات: مناسبة للعملية، مصانة لمنع التلوث.",
+    "source": "ISO 22002-100",
+    "clause": "6.4"
+  },
+  {
+    "category": "Light Facilities",
+    "requirement_content": "Light: Adequate lighting for operation, detection of defects, and inspection for cleanliness.",
+    "arabic_translation": "الإضاءة: إضاءة كافية للتشغيل، واكتشاف العيوب، وفحص النظافة.",
+    "source": "ISO 22002-100",
+    "clause": "6.5"
+  },
+  {
+    "category": "Pest Control",
+    "requirement_content": "Pest Control: Documented programme to prevent access, harbourage, and proliferation.",
+    "arabic_translation": "مكافحة الآفات: برنامج موثق لمنع الدخول والمأوى والتكاثر.",
+    "source": "ISO 22002-100",
+    "clause": "7.1-7.6"
+  },
+  {
+    "category": "Waste Management",
+    "requirement_content": "Waste Management: Programme to identify, collect, remove waste. No accumulation.",
+    "arabic_translation": "إدارة النفايات: برنامج للتعريف والجمع والإزالة. لا يُسمح بتراكم النفايات.",
+    "source": "ISO 22002-100; ISO 22002-2",
+    "clause": "8."
+  },
+  {
+    "category": "Waste Management",
+    "requirement_content": "Recycling/Reuse: Designed to prevent contamination. Proper identification and storage.",
+    "arabic_translation": "إعادة التدوير/الاستخدام: مصممة لمنع التلوث. التعريف والتخزين السليم.",
+    "source": "ISO 22002-100",
+    "clause": "8.2"
+  },
+  {
+    "category": "Waste Management",
+    "requirement_content": "Waste containers: Adequate number/capacity, hands-free covers in prep areas.",
+    "arabic_translation": "حاويات النفايات: عدد وسعة كافيان، أغطية تعمل بدون استخدام اليدين في مناطق التحضير.",
+    "source": "ISO 22002-100; ISO 22002-2",
+    "clause": "8.3"
+  },
+  {
+    "category": "Food Equipment",
+    "requirement_content": "Equipment suitability: Hygienically designed, easy to clean/maintain, food-grade materials.",
+    "arabic_translation": "ملاءمة المعدات: تصميم صحي، سهولة التنظيف/الصيانة، مواد صالحة للغذاء.",
+    "source": "ISO 22002-100; ISO 22002-2",
+    "clause": "9.1"
+  },
+  {
+    "category": "Food Equipment",
+    "requirement_content": "Equipment capability: Capable of controlling identified food safety hazards.",
+    "arabic_translation": "قدرة المعدات: قادرة على التحكم في مخاطر سلامة الغذاء المحددة.",
+    "source": "ISO 22002-100",
+    "clause": "9.2"
+  },
+  {
+    "category": "Food Equipment",
+    "requirement_content": "Maintenance: Documented preventative/corrective programmes. Food safety priority.",
+    "arabic_translation": "الصيانة: برامج وقائية/تصحيحية موثقة. إعطاء الأولوية لسلامة الغذاء.",
+    "source": "ISO 22002-100",
+    "clause": "9.3"
+  },
+  {
+    "category": "Food Purchasing/ Receiving",
+    "requirement_content": "Purchasing/Incoming: Supplier selection, hazard-based assessment, inspection of incoming materials.",
+    "arabic_translation": "المشتريات/المواد الواردة: اختيار الموردين، تقييم مبني على المخاطر، فحص المواد الواردة.",
+    "source": "ISO 22002-100; ISO 22002-2",
+    "clause": "10.1-10.3"
+  },
+  {
+    "category": "Food Storage",
+    "requirement_content": "Storage/Dispatch/Transport: Protection against damage/contamination, temp control, hygiene of vehicles.",
+    "arabic_translation": "التخزين/الشحن/النقل: الحماية من التلف/التلوث، التحكم في درجة الحرارة، نظافة المركبات.",
+    "source": "ISO 22002-100",
+    "clause": "11.1-11.3"
+  },
+  {
+    "category": "Food Handling",
+    "requirement_content": "Prevention of contamination: Systems to detect/prevent/control/minimize cross-contamination.",
+    "arabic_translation": "منع التلوث: أنظمة للكشف/المنع/التحكم/التقليل من التلوث المتبادل.",
+    "source": "ISO 22002-100",
+    "clause": "12.1"
+  },
+  {
+    "category": "Food Handling",
+    "requirement_content": "Allergen Control: Protect against cross-contact by cleaning, segregation, dedicated tools.",
+    "arabic_translation": "التحكم في مسببات الحساسية: الحماية من التلامس المتبادل عبر التنظيف، الفصل، أدوات مخصصة.",
+    "source": "ISO 22002-2",
+    "clause": "12.2"
+  },
+  {
+    "category": "Cleaning and Disinfection",
+    "requirement_content": "Cleaning/Disinfection: Program defining what/when/who/how/verification.",
+    "arabic_translation": "التنظيف والتطهير: برنامج يحدد ماذا/متى/من/كيف/التحقق.",
+    "source": "ISO 22002-100",
+    "clause": "13.1-13.3"
+  },
+  {
+    "category": "Personal Hygiene",
+    "requirement_content": "Personal Hygiene/Behavior: Handwashing, workwear, health status, behavior, visitor control.",
+    "arabic_translation": "النظافة الشخصية/السلوك: غسل اليدين، ملابس العمل، الحالة الصحية، السلوك، التحكم في الزوار.",
+    "source": "ISO 22002-100; ISO 22002-2",
+    "clause": "14.1-14.8"
+  },
+  {
+    "category": "Food Labeling",
+    "requirement_content": "Product/Consumer Info: Adequate information for safe handling, preparation, storage, use.",
+    "arabic_translation": "معلومات المنتج/المستهلك: معلومات كافية للتداول، التحضير، التخزين، الاستخدام الآمن.",
+    "source": "ISO 22002-100",
+    "clause": "15"
+  },
+  {
+    "category": "Food Fraud/ Food Defence",
+    "requirement_content": "Food Defence/Fraud: Threat/Vulnerability assessments and mitigation plans.",
+    "arabic_translation": "دفاع الغذاء/الاحتيال: تقييم التهديدات/نقاط الضعف وخطط التخفيف.",
+    "source": "ISO 22002-100",
+    "clause": "16.1-16.3"
+  },
+  {
+    "category": "Food Handling, Temperature Control",
+    "requirement_content": "Preparation - Thawing: Physical barriers, controlled temp (<=4°C), no refreezing.",
+    "arabic_translation": "التحضير - الإذابة: حواجز فيزيائية، درجة حرارة محكومة (<= 4 درجة مئوية)، عدم إعادة التجميد.",
+    "source": "ISO 22002-2",
+    "clause": "17.1"
+  },
+  {
+    "category": "Food Handling, Temperature Control",
+    "requirement_content": "Preparation - Cooking: Adequate duration/core temp, fat/oil quality control.",
+    "arabic_translation": "التحضير - الطهي: مدة/درجة حرارة قلب كافية، التحكم في جودة الدهون/الزيوت.",
+    "source": "ISO 22002-2",
+    "clause": "17.2"
+  },
+  {
+    "category": "Temperature Control",
+    "requirement_content": "Preparation - Cooling: Cool core temp to 10°C within 2 hours, store at <=4°C.",
+    "arabic_translation": "التحضير - التبريد: تبريد درجة حرارة القلب إلى 10 درجات مئوية خلال ساعتين، التخزين <= 4 درجات مئوية.",
+    "source": "ISO 22002-2",
+    "clause": "17.3"
+  },
+  {
+    "category": "Temperature control",
+    "requirement_content": "Preparation - Reheating: Rapid reheating to core temp of 75°C within 1 hour.",
+    "arabic_translation": "التحضير - إعادة التسخين: إعادة تسخين سريع لدرجة حرارة قلب 75 درجة مئوية خلال ساعة.",
+    "source": "ISO 22002-2",
+    "clause": "17.4"
+  },
+  {
+    "category": "Food Handling, Temperature Control",
+    "requirement_content": "Preparation - Service: Protect from contamination, maintain hot (>=63°C) or cold (<=4°C).",
+    "arabic_translation": "التحضير - الخدمة: الحماية من التلوث، الحفاظ على الساخن (>= 63 درجة مئوية) أو البارد (<= 4 درجات مئوية).",
+    "source": "ISO 22002-2",
+    "clause": "17.5"
+  }
 ];
 
 let lang = 'en';
@@ -118,9 +321,17 @@ function toggleLang() {
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
-    auditItems.forEach((item, index) => {
+    
+    auditItems.forEach((item) => {
+        const textContent = lang === 'en' ? item.requirement_content : item.arabic_translation;
+        const clauseText = item.clause ? `(Clause: ${item.clause})` : '';
+        
         tbody.innerHTML += `<tr>
-            <td>${item[lang]}</td>
+            <td>
+                <strong style="color: var(--teal);">${item.category}</strong><br>
+                ${textContent}<br>
+                <small style="color: #666;"><em>Source: ${item.source} ${clauseText}</em></small>
+            </td>
             <td>
                 <select class="res" onchange="calculate()">
                     <option value="0">Yes</option>
@@ -148,7 +359,6 @@ function previewImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            // Remove existing thumbnail if present
             const existingImg = input.parentElement.querySelector('img');
             if(existingImg) existingImg.remove();
             
@@ -176,14 +386,12 @@ function calculate() {
         
         if (!resSelect || !majorCheck) return;
 
-        // Logic for Major checkbox
         if (resSelect.value === "1") {
             majorCheck.disabled = false;
             score -= majorCheck.checked ? 10 : 1;
         } else {
             majorCheck.disabled = true;
             majorCheck.checked = false;
-            // "0" (Yes) and "2" (N/A) deduct 0 points
         }
     });
     
@@ -204,7 +412,7 @@ function addHistory() {
         history.scores.push(parseInt(scoreVal));
         document.getElementById('histDate').value = '';
         document.getElementById('histScore').value = '';
-        calculate(); // This triggers updateCharts automatically
+        calculate(); 
     }
 }
 
@@ -241,9 +449,7 @@ let teamChart = new Chart(ctx2, {
 });
 
 function updateCharts(currentScore) {
-    // Update Line Chart Colors
     let pointColors = history.scores.map(s => getColor(s));
-    // Ensure the last point reflects the current live score if no new history is added
     if (history.scores.length === 1) {
         history.scores[0] = currentScore;
         pointColors[0] = getColor(currentScore);
@@ -254,9 +460,7 @@ function updateCharts(currentScore) {
     trendChart.data.datasets[0].pointBackgroundColor = pointColors;
     trendChart.update();
 
-    // Calculate Team Scores
     let teams = { 'Kitchen Operations': 100, 'Cleaning': 100, 'Maintenance': 100 };
-    let itemCounts = { 'Kitchen Operations': 0, 'Cleaning': 0, 'Maintenance': 0 };
     
     document.querySelectorAll('tr').forEach(tr => {
         const teamSelect = tr.querySelector('.team');
@@ -269,13 +473,11 @@ function updateCharts(currentScore) {
         const res = resSelect.value;
         const major = majorCheck.checked;
         
-        itemCounts[team]++;
         if (res === "1") {
             teams[team] -= major ? 10 : 1;
         }
     });
 
-    // Ensure scores don't drop below 0
     let kScore = Math.max(0, teams['Kitchen Operations']);
     let cScore = Math.max(0, teams['Cleaning']);
     let mScore = Math.max(0, teams['Maintenance']);
