@@ -58,6 +58,15 @@
     <div><canvas id="teamChart"></canvas></div>
 </div>
 
+<div class="card no-print">
+    <h3>Update History</h3>
+    <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+        <input type="text" id="histDate" placeholder="YYYY-MM-DD" style="flex: 1;">
+        <input type="number" id="histScore" placeholder="Score (%)" style="flex: 1;">
+        <button onclick="addHistory()">Add Entry</button>
+    </div>
+</div>
+
 <div class="card">
     <div class="signature-section">
         <div class="sig-box">Auditor Signature</div>
@@ -155,9 +164,13 @@ function calculate() {
     scoreEl.innerText = finalScore;
     scoreEl.className = finalScore >= 90 ? 'score-green' : finalScore >= 70 ? 'score-yellow' : 'score-red';
     
-    // Update Charts
-    trendChart.data.datasets[0].data[trendChart.data.datasets[0].data.length-1] = finalScore;
-    trendChart.data.datasets[0].borderColor = getCol(finalScore);
+    updateCharts(finalScore, teamScores);
+}
+
+function updateCharts(score, teamScores) { 
+    history.scores[history.scores.length - 1] = score; 
+    trendChart.data.datasets[0].data = history.scores;
+    trendChart.data.datasets[0].borderColor = getCol(score);
     
     const teamAverages = ['HP', 'CL', 'M'].map(t => teamScores[t].length ? teamScores[t].reduce((a,b)=>a+b,0)/teamScores[t].length : 100);
     teamChart.data.datasets[0].data = teamAverages;
@@ -165,6 +178,16 @@ function calculate() {
     
     trendChart.update();
     teamChart.update();
+}
+
+function addHistory() { 
+    const d = document.getElementById('histDate').value; 
+    const s = document.getElementById('histScore').value; 
+    if(d && s) { 
+        history.dates.push(d); 
+        history.scores.push(parseInt(s)); 
+        trendChart.update(); 
+    } 
 }
 
 const trendChart = new Chart(document.getElementById('trendChart').getContext('2d'), { type: 'line', data: { labels: history.dates, datasets: [{ label: 'Score (%)', data: history.scores, borderColor: '#28a745' }] }, options: { scales: { y: { min: 0, max: 100 } } } });
