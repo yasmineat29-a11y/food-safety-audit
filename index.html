@@ -2,197 +2,93 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISO 22002-2:2025 Catering Audit</title>
+    <title>ISO 22002-2:2025 Audit Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --teal: #008080; --bg: #f9f9f9; --text: #333; }
-        body { font-family: 'Segoe UI', sans-serif; padding: 15px; background: var(--bg); color: var(--text); }
-        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid var(--teal); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h1 { color: var(--teal); }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { background: var(--teal); color: white; padding: 12px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 8px; vertical-align: middle; }
-        select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        input[type="text"], input[type="date"], input[type="time"], textarea { width: 100%; padding: 5px; box-sizing: border-box; }
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        button { background: var(--teal); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
-        .score-green { color: var(--teal); font-weight: bold; }
-        .score-red { color: #b22222; font-weight: bold; }
-        .thumbnail { max-width: 50px; max-height: 50px; display: block; margin-top: 5px; cursor: pointer; }
-        @media print { .no-print { display: none; } }
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .thumbnail { max-width: 50px; cursor: pointer; }
+        .no-print { margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>Food Safety Audit (ISO 22002-2:2025)</h1>
-    <div style="font-size: 1.2rem;">Score: <span id="finalScore" class="score-green">100</span>%</div>
-    
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
-        <input type="date" id="auditDate">
-        <input type="time" id="auditTime">
-        <input type="text" id="auditLoc" placeholder="Location/Site Name">
+    <h1>ISO 22002-2:2025 Audit</h1>
+    <div style="display: flex; gap: 10px;">
+        <input type="date" id="date"> <input type="time" id="time"> <input type="text" id="loc" placeholder="Location">
     </div>
-
-    <div class="btn-group no-print">
-        <button onclick="toggleLang()">EN / AR</button>
-        <button onclick="window.print()">Print Report</button>
-    </div>
+    <h2>Current Score: <span id="score">100</span>%</h2>
 </div>
 
-<div class="card" style="overflow-x: auto;">
-    <table id="auditTable">
-        <thead>
-            <tr>
-                <th>Requirement Content</th>
-                <th>Result</th>
-                <th>Team</th>
-                <th>Major? (-10)</th>
-                <th>Finding</th>
-                <th>Image</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
-</div>
-
-<div class="card chart-wrapper">
-    <canvas id="trendChart"></canvas>
-    <canvas id="teamChart"></canvas>
-</div>
+<table id="auditTable">
+    <thead>
+        <tr><th>Requirement</th><th>Result</th><th>Team</th><th>Major?</th><th>Finding</th><th>Img</th></tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
 
 <div class="card">
+    <canvas id="teamChart"></canvas>
     <h3>Update History</h3>
-    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-        <input type="text" id="histDate" placeholder="Date (e.g., 2026-07-02)">
-        <input type="number" id="histScore" placeholder="Score">
-        <button onclick="addHistory()">Add Entry</button>
-    </div>
+    <input type="text" id="hDate" placeholder="Date"> <input type="number" id="hScore" placeholder="Score">
+    <button onclick="addHistory()">Add Entry</button>
+    <canvas id="trendChart"></canvas>
 </div>
 
 <script>
-// Requirements based on ISO 22002-2:2025 and ISO 22002-100:2025[span_3](start_span)[span_3](end_span)[span_4](start_span)[span_4](end_span)
-const auditItems = [
-    {en: "Boundaries & Environment: Potential sources of contamination mitigated.", ar: "الحدود والبيئة: تخفيف مصادر التلوث المحتملة."},
-    {en: "Internal Structures: Floors, walls, drains suitable for cleaning.", ar: "الهياكل الداخلية: أرضيات وجدران ومصارف مناسبة للتنظيف."},
-    {en: "Utilities (Water/Ice/Steam): Suitable quality and protected.", ar: "المرافق (المياه/الثلج/البخار): جودة مناسبة ومحمية."},
-    {en: "Pest Control: Documented program, preventing access and harbourage.", ar: "مكافحة الآفات: برنامج موثق لمنع الدخول والمأوى."},
-    {en: "Waste & FLW: Designed to prevent contamination/accumulation.", ar: "النفايات: مصممة لمنع التلوث وتراكم النفايات."},
-    {en: "Equipment: Hygienically designed and maintained.", ar: "المعدات: تصميم صحي وصيانة مستمرة."},
-    {en: "Purchased Materials: Supplier selection and verification of incoming materials.", ar: "المواد المشتراة: اختيار الموردين والتحقق من المواد الواردة."},
-    {en: "Allergen Control: Segregation and cleaning to prevent cross-contact.", ar: "التحكم في الحساسية: الفصل والتنظيف لمنع التلامس."},
-    {en: "Personal Hygiene: Handwashing, health status, and behaviour rules.", ar: "النظافة الشخصية: غسل اليدين، الحالة الصحية، وقواعد السلوك."},
-    {en: "Preparation: Thawing, cooking (min temp), cooling, and reheating procedures.", ar: "التحضير: إجراءات الإذابة، الطبخ (درجة الحرارة)، التبريد، وإعادة التسخين."},
-    {en: "Food Defence & Fraud: Threat assessments and mitigation plans.", ar: "الدفاع عن الغذاء والاحتيال: تقييم التهديدات وخطط التخفيف."}
-];
+const items = ["Boundaries", "Internal Structures", "Utilities", "Pest Control", "Waste", "Equipment", "Purchased Materials", "Allergens", "Hygiene", "Preparation", "Food Defence"];
+const tbody = document.getElementById('tableBody');
 
-let lang = 'en';
-let history = { dates: ['Initial'], scores: [100] };
+items.forEach(item => {
+    tbody.innerHTML += `<tr>
+        <td>${item}</td>
+        <td><select class="res" onchange="update()"><option value="0">Yes</option><option value="1">No</option></select></td>
+        <td><select class="team"><option>Cleaning</option><option>Kitchen</option></select></td>
+        <td><input type="checkbox" class="major" disabled onchange="update()"></td>
+        <td><input type="text"></td>
+        <td><input type="file" onchange="readImg(this)"></td>
+    </tr>`;
+});
 
-function toggleLang() {
-    lang = lang === 'en' ? 'ar' : 'en';
-    renderTable();
-}
-
-function renderTable() {
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
-    auditItems.forEach((item) => {
-        tbody.innerHTML += `<tr>
-            <td>${item[lang]}</td>
-            <td>
-                <select onchange="calculate()" class="res">
-                    <option value="0">Yes</option>
-                    <option value="1">No</option>
-                </select>
-            </td>
-            <td>
-                <select class="team">
-                    <option>Cleaning</option><option>Maintenance</option><option>Kitchen Operations</option>
-                </select>
-            </td>
-            <td><input type="checkbox" class="major" onchange="calculate()" disabled></td>
-            <td><textarea></textarea></td>
-            <td><input type="file" accept="image/*" onchange="previewImage(this)"></td>
-        </tr>`;
-    });
-}
-
-function previewImage(input) {
-    if (input.files && input.files[0]) {
+function readImg(input) {
+    if (input.files[0]) {
         const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.className = 'thumbnail';
-            input.parentElement.appendChild(img);
-        };
+        reader.onload = e => input.parentElement.innerHTML = `<img src="${e.target.result}" class="thumbnail" onclick="window.open(this.src)">`;
         reader.readAsDataURL(input.files[0]);
     }
 }
 
-function calculate() {
+function update() {
     let score = 100;
     document.querySelectorAll('tr').forEach(tr => {
-        const resSelect = tr.querySelector('.res');
-        const majorCheck = tr.querySelector('.major');
-        
-        // Enable/Disable Major checkbox
-        majorCheck.disabled = (resSelect.value === "0");
-        if (resSelect.value === "0") majorCheck.checked = false;
-
-        // Scoring Logic: No = -1, Major = -10 (Total)
-        if (resSelect.value === "1") {
-            if (majorCheck.checked) {
-                score -= 10;
-            } else {
-                score -= 1;
-            }
-        }
+        const res = tr.querySelector('.res').value;
+        const major = tr.querySelector('.major');
+        major.disabled = (res === "0");
+        if(res === "0") major.checked = false;
+        if(res === "1") score -= (major.checked ? 10 : 1);
     });
-    
-    let el = document.getElementById('finalScore');
-    score = Math.max(0, score);
-    el.innerText = score;
-    el.className = score >= 90 ? 'score-green' : 'score-red';
+    document.getElementById('score').innerText = Math.max(0, score);
     updateCharts();
 }
 
+let history = { dates: [], scores: [] };
 function addHistory() {
-    history.dates.push(document.getElementById('histDate').value || 'New');
-    history.scores.push(parseInt(document.getElementById('histScore').value));
+    history.dates.push(document.getElementById('hDate').value);
+    history.scores.push(document.getElementById('hScore').value);
     updateCharts();
 }
 
-// Chart Initialization
-const ctx1 = document.getElementById('trendChart').getContext('2d');
-let trendChart = new Chart(ctx1, { type: 'line', data: { labels: history.dates, datasets: [{ label: 'Score Trend', data: history.scores, borderColor: '#008080' }] } });
-
-const ctx2 = document.getElementById('teamChart').getContext('2d');
-let teamChart = new Chart(ctx2, { type: 'bar', data: { labels: ['Cleaning', 'Maintenance', 'Kitchen'], datasets: [{ label: 'Team Compliance (Points)', data: [0, 0, 0], backgroundColor: '#008080' }] } });
+const teamChart = new Chart(document.getElementById('teamChart'), { type: 'bar', data: { labels: ['Cleaning', 'Kitchen'], datasets: [{ label: 'Compliance', data: [100, 100] }] } });
+const trendChart = new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: history.dates, datasets: [{ label: 'History', data: history.scores }] } });
 
 function updateCharts() {
     trendChart.data.labels = history.dates;
     trendChart.data.datasets[0].data = history.scores;
     trendChart.update();
-
-    let teams = { Cleaning: 100, Maintenance: 100, 'Kitchen Operations': 100 };
-    document.querySelectorAll('tr').forEach(tr => {
-        const team = tr.querySelector('.team').value;
-        const res = tr.querySelector('.res').value;
-        const major = tr.querySelector('.major').checked;
-        
-        // Penalty calculation for chart visualization
-        let penalty = (res === "1") ? (major ? 10 : 1) : 0;
-        teams[team] -= penalty;
-    });
-
-    teamChart.data.datasets[0].data = [teams.Cleaning, teams.Maintenance, teams['Kitchen Operations']];
-    teamChart.update();
 }
-
-renderTable();
 </script>
 </body>
 </html>
