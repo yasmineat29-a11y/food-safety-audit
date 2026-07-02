@@ -3,22 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Integrated Catering Audit</title>
+    <title>Food Safety Audit Report</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: sans-serif; padding: 10px; background: #f4f4f4; }
         .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        .chart-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
-        select { width: 100%; padding: 5px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        textarea { width: 100%; height: 50px; }
+        .chart-container { display: flex; flex-wrap: wrap; gap: 20px; }
+        canvas { max-width: 400px; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h1>Catering Audit Checklist</h1>
-        <h3>Final Score: <span id="finalScore">100</span>%</h3>
+        <h1>Food Safety Audit Report</h1>
+        <h3>Current Score: <span id="finalScore">100</span>%</h3>
+        <button onclick="exportData()">Export Full Audit Data (.json)</button>
+    </div>
+
+    <div class="card">
+        <h3>History Input (For Charts)</h3>
+        <input type="text" id="histDate" placeholder="Date (e.g. 2026-07-02)">
+        <input type="number" id="histScore" placeholder="Score">
+        <button onclick="updateHistory()">Add to Chart</button>
     </div>
 
     <div class="card" style="overflow-x: auto;">
@@ -28,6 +37,8 @@
                     <th>Requirement Content</th>
                     <th>Result</th>
                     <th>Major?</th>
+                    <th>Findings/Remark</th>
+                    <th>Image</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -40,7 +51,7 @@
     </div>
 
 <script>
-// Original clauses retained verbatim from source[span_1](start_span)[span_1](end_span)
+// Clauses verbatim from ISO 22002-100:2025 and ISO 22002-2:2025
 const auditItems = [
     {req: "Boundaries of the site/facilities: Identified and maintained to prevent contamination."},
     {req: "Environment: Consideration of potential contamination sources from local environment."},
@@ -75,34 +86,47 @@ const auditItems = [
     {req: "Preparation - Service: Protect from contamination, maintain hot (>=63°C) or cold (<=4°C)."}
 ];
 
+// Load History from LocalStorage
+let history = JSON.parse(localStorage.getItem('auditHistory')) || { dates: [], scores: [] };
+
 function buildTable() {
     const tbody = document.getElementById('tableBody');
     auditItems.forEach((item, index) => {
         tbody.innerHTML += `<tr>
             <td>${item.req}</td>
-            <td>
-                <select onchange="calculate()" id="res_${index}">
-                    <option value="0">Yes</option>
-                    <option value="1">No</option>
-                    <option value="0">NA</option>
-                </select>
-            </td>
+            <td><select onchange="calculate()" class="res"><option value="0">Yes</option><option value="1">No</option><option value="0">NA</option></select></td>
             <td><input type="checkbox" class="major" onchange="calculate()"></td>
+            <td><textarea placeholder="Finding details..."></textarea></td>
+            <td><input type="file" accept="image/*"></td>
         </tr>`;
     });
 }
 
 function calculate() {
     let score = 100;
-    // Calculation: 10 points deduction for 'No', 10 points for 'Major'
-    document.querySelectorAll('select').forEach(s => { if(s.value == "1") score -= 10; });
+    document.querySelectorAll('.res').forEach(s => { if(s.value == "1") score -= 10; });
     document.querySelectorAll('.major:checked').forEach(() => score -= 10);
     document.getElementById('finalScore').innerText = Math.max(0, score);
 }
 
+function updateHistory() {
+    history.dates.push(document.getElementById('histDate').value);
+    history.scores.push(parseInt(document.getElementById('histScore').value));
+    localStorage.setItem('auditHistory', JSON.stringify(history));
+    location.reload();
+}
+
+function exportData() {
+    const blob = new Blob([JSON.stringify(history)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'audit-data.json';
+    a.click();
+}
+
 // Chart Initializers
-new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: ['A1', 'A2', 'A3'], datasets: [{ label: 'Score History', data: [80, 90, 85] }] } });
-new Chart(document.getElementById('teamChart'), { type: 'bar', data: { labels: ['CL', 'M', 'HP'], datasets: [{ label: 'Team Scores', data: [85, 95, 80] }] } });
+new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: history.dates, datasets: [{ label: 'Score Trend', data: history.scores }] } });
+new Chart(document.getElementById('teamChart'), { type: 'bar', data: { labels: ['CL', 'M', 'HP'], datasets: [{ label: 'Team Scores', data: [80, 85, 90] }] } });
 
 buildTable();
 </script>
