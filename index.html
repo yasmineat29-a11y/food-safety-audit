@@ -13,13 +13,32 @@
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th { background: var(--teal); color: white; padding: 12px; text-align: left; }
         td { border: 1px solid #ddd; padding: 8px; vertical-align: middle; }
-        select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        /* Removed arrows from select boxes */
+        select { 
+            width: 100%; 
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            appearance: none; 
+            -webkit-appearance: none; 
+            -moz-appearance: none; 
+            background: transparent; 
+            cursor: pointer; 
+            text-align-last: center; 
+        }
+        
         input[type="text"], input[type="date"], input[type="time"], input[type="number"], textarea { width: 100%; padding: 5px; box-sizing: border-box; }
         .btn-group { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
         button { background: var(--teal); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
         .score-green { color: #28a745; font-weight: bold; }
         .score-yellow { color: #ffc107; font-weight: bold; }
         .score-red { color: #dc3545; font-weight: bold; }
+        
+        /* Custom style to hide default file upload button text */
+        input[type="file"] { display: none; }
+        .custom-file-upload { display: inline-block; padding: 6px 12px; cursor: pointer; color: var(--teal); font-size: 1.5rem; text-align: center; width: 100%; box-sizing: border-box; }
+        
         .thumbnail { max-width: 150px; max-height: 150px; display: block; margin-top: 5px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; }
         .chart-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 768px) { .chart-wrapper { grid-template-columns: 1fr; } }
@@ -82,14 +101,13 @@
 <div class="card no-print">
     <h3>Update History (Previous Audits)</h3>
     <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
-        <input type="text" id="histDate" placeholder="Date (e.g., 2026-07-02)" style="flex: 1;">
+        <input type="date" id="histDate" style="flex: 1;">
         <input type="number" id="histScore" placeholder="Score (%)" style="flex: 1;">
         <button onclick="addHistory()">Add Entry</button>
     </div>
 </div>
 
 <script>
-// Complete Integrated ISO Audit Items[span_0](start_span)[span_0](end_span)
 const auditItems = [
   {
     "category": "Food Environment",
@@ -350,7 +368,12 @@ function renderTable() {
                 <input type="checkbox" class="major" onchange="calculate()" disabled>
             </td>
             <td><textarea rows="3" placeholder="Notes..."></textarea></td>
-            <td><input type="file" accept="image/*" onchange="previewImage(this)"></td>
+            <td>
+                <label class="custom-file-upload">
+                    📷
+                    <input type="file" accept="image/*" onchange="previewImage(this)">
+                </label>
+            </td>
         </tr>`;
     });
 }
@@ -359,13 +382,13 @@ function previewImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const existingImg = input.parentElement.querySelector('img');
+            const existingImg = input.parentElement.parentElement.querySelector('img');
             if(existingImg) existingImg.remove();
             
             const img = document.createElement('img');
             img.src = e.target.result;
             img.className = 'thumbnail';
-            input.parentElement.appendChild(img);
+            input.parentElement.parentElement.appendChild(img);
         };
         reader.readAsDataURL(input.files[0]);
     }
