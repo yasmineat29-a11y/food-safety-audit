@@ -2,70 +2,109 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Food Safety Audit Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Catering Audit</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .score-box { background: #f4f4f4; padding: 15px; margin-bottom: 20px; }
-        .upload-btn { margin-top: 5px; }
+        body { font-family: sans-serif; padding: 10px; background: #f4f4f4; }
+        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .chart-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        select { width: 100%; padding: 5px; }
     </style>
 </head>
 <body>
 
-    <h1>Food Safety Audit Report</h1>
-    <p>Based on ISO 22002-100:2025 and ISO 22002-2:2025 requirements.</p>
-
-    <div class="score-box">
-        <h3>Live Scoring</h3>
-        <p>Final Score: <span id="finalScore">0</span>%</p>
+    <div class="card">
+        <h1>Catering Audit Checklist</h1>
+        <h3>Final Score: <span id="finalScore">100</span>%</h3>
     </div>
 
-    <table id="auditTable">
-        <thead>
-            <tr>
-                <th>Category</th>
-                <th>Requirement Content</th>
-                <th>Arabic Translation</th>
-                <th>Result (Yes/No/NA)</th>
-                <th>Finding/Recommendation</th>
-                <th>Major?</th>
-                <th>Upload Image</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Row 1 Example -->
-            <tr>
-                <td>Food Environment</td>
-                <td>Boundaries of the site/facilities: Identified and maintained to prevent contamination.</td>
-                <td>حدود الموقع/المرافق: يجب تحديدها وصيانتها لمنع التلوث.</td>
-                <td>
-                    <select onchange="calculateScore()">
-                        <option value="0">Yes</option>
-                        <option value="1">No</option>
-                        <option value="0">NA</option>
-                    </select>
-                </td>
-                <td><textarea></textarea></td>
-                <td><input type="checkbox" class="major-checkbox" onchange="calculateScore()"></td>
-                <td><input type="file" class="upload-btn" accept="image/*"></td>
-            </tr>
-            <!-- Repeat structure for other rows -->
-        </tbody>
-    </table>
+    <div class="card" style="overflow-x: auto;">
+        <table id="auditTable">
+            <thead>
+                <tr>
+                    <th>Requirement Content</th>
+                    <th>Result</th>
+                    <th>Major?</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
 
-    <script>
-        function calculateScore() {
-            let deductions = 0;
-            let majorCount = 0;
-            
-            // Logic for calculation
-            document.querySelectorAll('select').forEach(select => deductions += parseInt(select.value));
-            document.querySelectorAll('.major-checkbox:checked').forEach(() => majorCount++);
-            
-            let score = 100 - (deductions * 10) - (majorCount * 10);
-            document.getElementById('finalScore').innerText = Math.max(0, score);
-        }
-    </script>
+    <div class="card chart-container">
+        <canvas id="trendChart"></canvas>
+        <canvas id="teamChart"></canvas>
+    </div>
+
+<script>
+// Original clauses retained verbatim from source[span_1](start_span)[span_1](end_span)
+const auditItems = [
+    {req: "Boundaries of the site/facilities: Identified and maintained to prevent contamination."},
+    {req: "Environment: Consideration of potential contamination sources from local environment."},
+    {req: "Construction and layout: Designed for purpose, maintained to avoid hazards."},
+    {req: "General: Facilities designed to minimize cross-contamination, provide flow, and facilitate hygiene."},
+    {req: "Internal structures and fittings: Suitable materials, maintainable, prevent foreign matter/pests."},
+    {req: "Location of equipment: Facilitate hygiene, monitoring, and access for operation/cleaning."},
+    {req: "Storage: Defined requirements, protection from dust/condensation/pests, segregation."},
+    {req: "Water, ice, steam: Suitable quality/pressure/temp. Ice handling must protect from contamination."},
+    {req: "Air and ventilation: Prevent flow from contaminated to clean areas. Accessible for cleaning/maintenance."},
+    {req: "Compressed air/gases: Appropriate for operation, maintained to prevent contamination."},
+    {req: "Light: Adequate lighting for operation, detection of defects, and inspection for cleanliness."},
+    {req: "Pest Control: Documented programme to prevent access, harbourage, and proliferation."},
+    {req: "Waste Management: Programme to identify, collect, remove waste. No accumulation."},
+    {req: "Recycling/Reuse: Designed to prevent contamination. Proper identification and storage."},
+    {req: "Waste containers: Adequate number/capacity, hands-free covers in prep areas."},
+    {req: "Equipment suitability: Hygienically designed, easy to clean/maintain, food-grade materials."},
+    {req: "Equipment capability: Capable of controlling identified food safety hazards."},
+    {req: "Maintenance: Documented preventative/corrective programmes. Food safety priority."},
+    {req: "Purchasing/Incoming: Supplier selection, hazard-based assessment, inspection of incoming materials."},
+    {req: "Storage/Dispatch/Transport: Protection against damage/contamination, temp control, hygiene of vehicles."},
+    {req: "Prevention of contamination: Systems to detect/prevent/control/minimize cross-contamination."},
+    {req: "Allergen Control: Protect against cross-contact by cleaning, segregation, dedicated tools."},
+    {req: "Cleaning/Disinfection: Program defining what/when/who/how/verification."},
+    {req: "Personal Hygiene/Behavior: Handwashing, workwear, health status, behavior, visitor control."},
+    {req: "Product/Consumer Info: Adequate information for safe handling, preparation, storage, use."},
+    {req: "Food Defence/Fraud: Threat/Vulnerability assessments and mitigation plans."},
+    {req: "Preparation - Thawing: Physical barriers, controlled temp (<=4°C), no refreezing."},
+    {req: "Preparation - Cooking: Adequate duration/core temp, fat/oil quality control."},
+    {req: "Preparation - Cooling: Cool core temp to 10°C within 2 hours, store at <=4°C."},
+    {req: "Preparation - Reheating: Rapid reheating to core temp of 75°C within 1 hour."},
+    {req: "Preparation - Service: Protect from contamination, maintain hot (>=63°C) or cold (<=4°C)."}
+];
+
+function buildTable() {
+    const tbody = document.getElementById('tableBody');
+    auditItems.forEach((item, index) => {
+        tbody.innerHTML += `<tr>
+            <td>${item.req}</td>
+            <td>
+                <select onchange="calculate()" id="res_${index}">
+                    <option value="0">Yes</option>
+                    <option value="1">No</option>
+                    <option value="0">NA</option>
+                </select>
+            </td>
+            <td><input type="checkbox" class="major" onchange="calculate()"></td>
+        </tr>`;
+    });
+}
+
+function calculate() {
+    let score = 100;
+    // Calculation: 10 points deduction for 'No', 10 points for 'Major'
+    document.querySelectorAll('select').forEach(s => { if(s.value == "1") score -= 10; });
+    document.querySelectorAll('.major:checked').forEach(() => score -= 10);
+    document.getElementById('finalScore').innerText = Math.max(0, score);
+}
+
+// Chart Initializers
+new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: ['A1', 'A2', 'A3'], datasets: [{ label: 'Score History', data: [80, 90, 85] }] } });
+new Chart(document.getElementById('teamChart'), { type: 'bar', data: { labels: ['CL', 'M', 'HP'], datasets: [{ label: 'Team Scores', data: [85, 95, 80] }] } });
+
+buildTable();
+</script>
 </body>
 </html>
