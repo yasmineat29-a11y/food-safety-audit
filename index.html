@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Food Safety Audit Report</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .score-box { background: #f4f4f4; padding: 15px; margin-bottom: 20px; }
+        .upload-btn { margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1>Food Safety Audit Report</h1>
+    <p>Based on ISO 22002-100:2025 and ISO 22002-2:2025 requirements.</p>
+
+    <div class="score-box">
+        <h3>Live Scoring</h3>
+        <p>Final Score: <span id="finalScore">0</span>%</p>
+    </div>
+
+    <table id="auditTable">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Requirement Content</th>
+                <th>Arabic Translation</th>
+                <th>Result (Yes/No/NA)</th>
+                <th>Finding/Recommendation</th>
+                <th>Major?</th>
+                <th>Upload Image</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Row 1 Example -->
+            <tr>
+                <td>Food Environment</td>
+                <td>Boundaries of the site/facilities: Identified and maintained to prevent contamination.</td>
+                <td>حدود الموقع/المرافق: يجب تحديدها وصيانتها لمنع التلوث.</td>
+                <td>
+                    <select onchange="calculateScore()">
+                        <option value="0">Yes</option>
+                        <option value="1">No</option>
+                        <option value="0">NA</option>
+                    </select>
+                </td>
+                <td><textarea></textarea></td>
+                <td><input type="checkbox" class="major-checkbox" onchange="calculateScore()"></td>
+                <td><input type="file" class="upload-btn" accept="image/*"></td>
+            </tr>
+            <!-- Repeat structure for other rows -->
+        </tbody>
+    </table>
+
+    <script>
+        function calculateScore() {
+            let deductions = 0;
+            let majorCount = 0;
+            
+            // Logic for calculation
+            document.querySelectorAll('select').forEach(select => deductions += parseInt(select.value));
+            document.querySelectorAll('.major-checkbox:checked').forEach(() => majorCount++);
+            
+            let score = 100 - (deductions * 10) - (majorCount * 10);
+            document.getElementById('finalScore').innerText = Math.max(0, score);
+        }
+    </script>
+</body>
+</html>
