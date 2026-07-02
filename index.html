@@ -7,30 +7,41 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --teal: #008080; --bg: #f9f9f9; --text: #333; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 15px; background: var(--bg); color: var(--text); }
+        body { font-family: 'Segoe UI', sans-serif; padding: 15px; background: var(--bg); color: var(--text); }
         .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid var(--teal); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h1 { color: var(--teal); margin-top: 0; }
+        h1 { color: var(--teal); }
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th { background: var(--teal); color: white; padding: 12px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 10px; }
-        select, textarea, input[type="file"] { width: 100%; padding: 5px; box-sizing: border-box; }
-        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        button { background: var(--teal); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .score-box { font-size: 1.2rem; margin: 10px 0; }
-        .score-green { color: var(--teal); } .score-yellow { color: #d4a017; } .score-red { color: #b22222; }
-        .chart-wrapper { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
-        canvas { width: 100% !important; max-width: 400px !important; }
+        td { border: 1px solid #ddd; padding: 8px; vertical-align: middle; }
+        select { width: 100%; padding: 8px; appearance: menulist; border: 1px solid #ccc; border-radius: 4px; }
+        textarea { width: 100%; padding: 5px; box-sizing: border-box; }
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        button { background: var(--teal); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .score-green { color: var(--teal); font-weight: bold; }
+        .score-yellow { color: #d4a017; font-weight: bold; }
+        .score-red { color: #b22222; font-weight: bold; }
+        .chart-wrapper { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }
+        canvas { max-width: 400px; width: 100% !important; }
+        .history-input { display: flex; gap: 10px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h1>Food Safety Audit Report</h1>
-    <div class="score-box">Score: <span id="finalScore" class="score-green">100</span>%</div>
+    <div style="font-size: 1.2rem;">Score: <span id="finalScore" class="score-green">100</span>%</div>
     <div class="btn-group">
         <button onclick="toggleLang()">EN / AR</button>
         <button onclick="window.print()">Print Report</button>
-        <button onclick="exportData()">Export JSON</button>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Update History</h3>
+    <div class="history-input">
+        <input type="text" id="histDate" placeholder="Date (e.g., 2026-07-02)">
+        <input type="number" id="histScore" placeholder="Score">
+        <button onclick="addHistory()">Add Entry</button>
     </div>
 </div>
 
@@ -53,6 +64,11 @@
 <div class="card chart-wrapper">
     <canvas id="trendChart"></canvas>
     <canvas id="teamChart"></canvas>
+</div>
+
+<div class="card">
+    <label><strong>Auditor Signature:</strong></label>
+    <textarea placeholder="Sign here..." style="height: 60px; margin-top: 10px;"></textarea>
 </div>
 
 <script>
@@ -91,6 +107,7 @@ const auditItems = [
 ];
 
 let lang = 'en';
+let history = { dates: ['Initial'], scores: [100] };
 
 function toggleLang() {
     lang = lang === 'en' ? 'ar' : 'en';
@@ -100,11 +117,11 @@ function toggleLang() {
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
-    auditItems.forEach((item, index) => {
+    auditItems.forEach((item) => {
         tbody.innerHTML += `<tr>
             <td>${item[lang]}</td>
             <td><select onchange="calculate()" class="res"><option value="0">Yes</option><option value="1">No</option><option value="0">NA</option></select></td>
-            <td><select><option>Cleaning</option><option>Maintenance</option><option>Hygienic Practices</option></select></td>
+            <td><select class="team"><option>Cleaning</option><option>Maintenance</option><option>Hygienic Practices</option></select></td>
             <td><input type="checkbox" class="major" onchange="calculate()"></td>
             <td><textarea></textarea></td>
             <td><input type="file" accept="image/*"></td>
@@ -119,20 +136,44 @@ function calculate() {
     let el = document.getElementById('finalScore');
     el.innerText = Math.max(0, score);
     el.className = score >= 90 ? 'score-green' : (score >= 70 ? 'score-yellow' : 'score-red');
+    updateCharts();
 }
 
-function exportData() {
-    const data = { score: document.getElementById('finalScore').innerText, timestamp: new Date() };
-    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'audit-report-backup.json';
-    a.click();
+function addHistory() {
+    history.dates.push(document.getElementById('histDate').value || 'New');
+    history.scores.push(parseInt(document.getElementById('histScore').value));
+    updateCharts();
 }
 
-// Chart Initializers
-new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: ['A1', 'A2', 'A3'], datasets: [{ label: 'Score Trend', data: [80, 90, 85], borderColor: '#008080', tension: 0.1 }] } });
-new Chart(document.getElementById('teamChart'), { type: 'bar', data: { labels: ['Cleaning', 'Maintenance', 'Hygiene'], datasets: [{ label: 'Team Compliance', data: [90, 80, 85], backgroundColor: '#008080' }] } });
+// Charts
+const ctx1 = document.getElementById('trendChart').getContext('2d');
+let trendChart = new Chart(ctx1, { type: 'line', data: { labels: history.dates, datasets: [{ label: 'Score Trend', data: history.scores, borderColor: '#008080' }] } });
+
+const ctx2 = document.getElementById('teamChart').getContext('2d');
+let teamChart = new Chart(ctx2, { type: 'bar', data: { labels: ['Cleaning', 'Maintenance', 'Hygiene'], datasets: [{ label: 'Team Compliance', data: [0, 0, 0], backgroundColor: '#008080' }] } });
+
+function updateCharts() {
+    trendChart.data.labels = history.dates;
+    trendChart.data.datasets[0].data = history.scores;
+    trendChart.update();
+
+    // Logic: Average scores by team
+    let teams = { Cleaning: [], Maintenance: [], 'Hygienic Practices': [] };
+    document.querySelectorAll('tr').forEach(tr => {
+        const teamSelect = tr.querySelector('.team');
+        const resSelect = tr.querySelector('.res');
+        if(teamSelect && resSelect) {
+            let s = resSelect.value == "1" ? 0 : 100;
+            teams[teamSelect.value].push(s);
+        }
+    });
+    teamChart.data.datasets[0].data = [
+        teams.Cleaning.reduce((a,b)=>a+b,0)/Math.max(1, teams.Cleaning.length),
+        teams.Maintenance.reduce((a,b)=>a+b,0)/Math.max(1, teams.Maintenance.length),
+        teams['Hygienic Practices'].reduce((a,b)=>a+b,0)/Math.max(1, teams['Hygienic Practices'].length)
+    ];
+    teamChart.update();
+}
 
 renderTable();
 </script>
