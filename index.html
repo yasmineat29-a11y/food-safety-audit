@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Safety Audit Report</title>
+    <title>ISO 22002-2:2025 Catering Audit</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --teal: #008080; --bg: #f9f9f9; --text: #333; }
@@ -13,35 +13,31 @@
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th { background: var(--teal); color: white; padding: 12px; text-align: left; }
         td { border: 1px solid #ddd; padding: 8px; vertical-align: middle; }
-        select { width: 100%; padding: 8px; appearance: menulist; border: 1px solid #ccc; border-radius: 4px; }
-        textarea { width: 100%; padding: 5px; box-sizing: border-box; }
+        select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="text"], input[type="date"], input[type="time"], textarea { width: 100%; padding: 5px; box-sizing: border-box; }
         .btn-group { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
         button { background: var(--teal); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
         .score-green { color: var(--teal); font-weight: bold; }
-        .score-yellow { color: #d4a017; font-weight: bold; }
         .score-red { color: #b22222; font-weight: bold; }
-        .chart-wrapper { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }
-        canvas { max-width: 400px; width: 100% !important; }
-        .history-input { display: flex; gap: 10px; margin-bottom: 10px; }
+        .thumbnail { max-width: 50px; max-height: 50px; display: block; margin-top: 5px; cursor: pointer; }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>Food Safety Audit Report</h1>
+    <h1>Food Safety Audit (ISO 22002-2:2025)</h1>
     <div style="font-size: 1.2rem;">Score: <span id="finalScore" class="score-green">100</span>%</div>
-    <div class="btn-group">
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+        <input type="date" id="auditDate">
+        <input type="time" id="auditTime">
+        <input type="text" id="auditLoc" placeholder="Location/Site Name">
+    </div>
+
+    <div class="btn-group no-print">
         <button onclick="toggleLang()">EN / AR</button>
         <button onclick="window.print()">Print Report</button>
-    </div>
-</div>
-
-<div class="card">
-    <h3>Update History</h3>
-    <div class="history-input">
-        <input type="text" id="histDate" placeholder="Date (e.g., 2026-07-02)">
-        <input type="number" id="histScore" placeholder="Score">
-        <button onclick="addHistory()">Add Entry</button>
     </div>
 </div>
 
@@ -52,7 +48,7 @@
                 <th>Requirement Content</th>
                 <th>Result</th>
                 <th>Team</th>
-                <th>Major?</th>
+                <th>Major? (-10)</th>
                 <th>Finding</th>
                 <th>Image</th>
             </tr>
@@ -67,43 +63,28 @@
 </div>
 
 <div class="card">
-    <label><strong>Auditor Signature:</strong></label>
-    <textarea placeholder="Sign here..." style="height: 60px; margin-top: 10px;"></textarea>
+    <h3>Update History</h3>
+    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <input type="text" id="histDate" placeholder="Date (e.g., 2026-07-02)">
+        <input type="number" id="histScore" placeholder="Score">
+        <button onclick="addHistory()">Add Entry</button>
+    </div>
 </div>
 
 <script>
+// Requirements based on ISO 22002-2:2025 and ISO 22002-100:2025[span_3](start_span)[span_3](end_span)[span_4](start_span)[span_4](end_span)
 const auditItems = [
-    {en: "Boundaries of the site/facilities: Identified and maintained to prevent contamination.", ar: "حدود الموقع/المرافق: يجب تحديدها وصيانتها لمنع التلوث."},
-    {en: "Environment: Consideration of potential contamination sources from local environment.", ar: "البيئة: مراعاة مصادر التلوث المحتملة من البيئة المحلية."},
-    {en: "Construction and layout: Designed for purpose, maintained to avoid hazards.", ar: "البناء والتصميم: تصميم المباني للغرض من العملية، وصيانتها لتجنب المخاطر."},
-    {en: "General: Facilities designed to minimize cross-contamination, provide flow, and facilitate hygiene.", ar: "عام: تصميم المرافق لتقليل التلوث المتبادل، وتوفير التدفق المناسب، وتسهيل الظروف الصحية."},
-    {en: "Internal structures and fittings: Suitable materials, maintainable, prevent foreign matter/pests.", ar: "الهياكل الداخلية والتجهيزات: مواد مناسبة، قابلة للصيانة، تمنع دخول الأجسام الغريبة/الآفات."},
-    {en: "Location of equipment: Facilitate hygiene, monitoring, and access for operation/cleaning.", ar: "موقع المعدات: تسهيل الممارسات الصحية، والمراقبة، والوصول للتشغيل والتنظيف."},
-    {en: "Storage: Defined requirements, protection from dust/condensation/pests, segregation.", ar: "التخزين: متطلبات محددة، حماية من الغبار/التكثيف/الآفات، الفصل المناسب."},
-    {en: "Water, ice, steam: Suitable quality/pressure/temp. Ice handling must protect from contamination.", ar: "المياه والثلج والبخار: جودة/ضغط/درجة حرارة مناسبة. يجب حماية الثلج من التلوث أثناء التعامل معه."},
-    {en: "Air and ventilation: Prevent flow from contaminated to clean areas. Accessible for cleaning/maintenance.", ar: "الهواء والتهوية: منع تدفق الهواء من المناطق الملوثة إلى النظيفة. سهولة الوصول للتنظيف والصيانة."},
-    {en: "Compressed air/gases: Appropriate for operation, maintained to prevent contamination.", ar: "الهواء المضغوط والغازات: مناسبة للعملية، مصانة لمنع التلوث."},
-    {en: "Light: Adequate lighting for operation, detection of defects, and inspection for cleanliness.", ar: "الإضاءة: إضاءة كافية للتشغيل، واكتشاف العيوب، وفحص النظافة."},
-    {en: "Pest Control: Documented programme to prevent access, harbourage, and proliferation.", ar: "مكافحة الآفات: برنامج موثق لمنع الدخول والمأوى والتكاثر."},
-    {en: "Waste Management: Programme to identify, collect, remove waste. No accumulation.", ar: "إدارة النفايات: برنامج للتعريف والجمع والإزالة. لا يُسمح بتراكم النفايات."},
-    {en: "Recycling/Reuse: Designed to prevent contamination. Proper identification and storage.", ar: "إعادة التدوير/الاستخدام: مصممة لمنع التلوث. التعريف والتخزين السليم."},
-    {en: "Waste containers: Adequate number/capacity, hands-free covers in prep areas.", ar: "حاويات النفايات: عدد وسعة كافيان، أغطية تعمل بدون استخدام اليدين في مناطق التحضير."},
-    {en: "Equipment suitability: Hygienically designed, easy to clean/maintain, food-grade materials.", ar: "مناسبة المعدات: تصميم صحي، سهولة التنظيف/الصيانة، مواد صالحة للغذاء."},
-    {en: "Equipment capability: Capable of controlling identified food safety hazards.", ar: "قدرة المعدات: القدرة على التحكم في مخاطر سلامة الغذاء المحددة."},
-    {en: "Maintenance: Documented preventative/corrective programmes. Food safety priority.", ar: "الصيانة: برامج موثقة للصيانة الوقائية/التصحيحية. أولوية لسلامة الغذاء."},
-    {en: "Purchasing/Incoming: Supplier selection, hazard-based assessment, inspection of incoming materials.", ar: "الشراء/المواد الواردة: اختيار الموردين، تقييم المخاطر، فحص المواد الواردة."},
-    {en: "Storage/Dispatch/Transport: Protection against damage/contamination, temp control, hygiene of vehicles.", ar: "التخزين/الشحن/النقل: الحماية من التلف/التلوث، التحكم في درجة الحرارة، نظافة المركبات."},
-    {en: "Prevention of contamination: Systems to detect/prevent/control/minimize cross-contamination.", ar: "منع التلوث: أنظمة للكشف عن التلوث المتبادل ومنعه والتحكم فيه وتقليله."},
-    {en: "Allergen Control: Protect against cross-contact by cleaning, segregation, dedicated tools.", ar: "التحكم في مسببات الحساسية: الحماية من التلامس المتبادل عبر التنظيف، الفصل، وأدوات مخصصة."},
-    {en: "Cleaning/Disinfection: Program defining what/when/who/how/verification.", ar: "التنظيف والتطهير: برنامج يحدد ماذا/متى/من/كيف/التحقق."},
-    {en: "Personal Hygiene/Behavior: Handwashing, workwear, health status, behavior, visitor control.", ar: "النظافة الشخصية/السلوك: غسل اليدين، ملابس العمل، الحالة الصحية، السلوك، التحكم في الزوار."},
-    {en: "Product/Consumer Info: Adequate information for safe handling, preparation, storage, use.", ar: "معلومات المنتج/المستهلك: معلومات كافية للمناولة الآمنة، التحضير، التخزين، والاستخدام."},
-    {en: "Food Defence/Fraud: Threat/Vulnerability assessments and mitigation plans.", ar: "الدفاع عن الغذاء/الاحتيال: تقييمات التهديد/الضعف وخطط التخفيف."},
-    {en: "Preparation - Thawing: Physical barriers, controlled temp (<=4°C), no refreezing.", ar: "التحضير - الإذابة: حواجز فيزيائية، درجة حرارة محكومة (<=4°م)، ممنوع إعادة التجميد."},
-    {en: "Preparation - Cooking: Adequate duration/core temp, fat/oil quality control.", ar: "التحضير - الطبخ: مدة كافية/درجة حرارة قلب المنتج، التحكم في جودة الدهون/الزيت."},
-    {en: "Preparation - Cooling: Cool core temp to 10°C within 2 hours, store at <=4°C.", ar: "التحضير - التبريد: تبريد قلب المنتج إلى 10°م خلال ساعتين، التخزين في <=4°م."},
-    {en: "Preparation - Reheating: Rapid reheating to core temp of 75°C within 1 hour.", ar: "التحضير - إعادة التسخين: إعادة تسخين سريعة إلى درجة حرارة قلب 75°م خلال ساعة."},
-    {en: "Preparation - Service: Protect from contamination, maintain hot (>=63°C) or cold (<=4°C).", ar: "التحضير - التقديم: الحماية من التلوث، الحفاظ على درجة حرارة ساخنة (>=63°م) أو باردة (<=4°م)."}
+    {en: "Boundaries & Environment: Potential sources of contamination mitigated.", ar: "الحدود والبيئة: تخفيف مصادر التلوث المحتملة."},
+    {en: "Internal Structures: Floors, walls, drains suitable for cleaning.", ar: "الهياكل الداخلية: أرضيات وجدران ومصارف مناسبة للتنظيف."},
+    {en: "Utilities (Water/Ice/Steam): Suitable quality and protected.", ar: "المرافق (المياه/الثلج/البخار): جودة مناسبة ومحمية."},
+    {en: "Pest Control: Documented program, preventing access and harbourage.", ar: "مكافحة الآفات: برنامج موثق لمنع الدخول والمأوى."},
+    {en: "Waste & FLW: Designed to prevent contamination/accumulation.", ar: "النفايات: مصممة لمنع التلوث وتراكم النفايات."},
+    {en: "Equipment: Hygienically designed and maintained.", ar: "المعدات: تصميم صحي وصيانة مستمرة."},
+    {en: "Purchased Materials: Supplier selection and verification of incoming materials.", ar: "المواد المشتراة: اختيار الموردين والتحقق من المواد الواردة."},
+    {en: "Allergen Control: Segregation and cleaning to prevent cross-contact.", ar: "التحكم في الحساسية: الفصل والتنظيف لمنع التلامس."},
+    {en: "Personal Hygiene: Handwashing, health status, and behaviour rules.", ar: "النظافة الشخصية: غسل اليدين، الحالة الصحية، وقواعد السلوك."},
+    {en: "Preparation: Thawing, cooking (min temp), cooling, and reheating procedures.", ar: "التحضير: إجراءات الإذابة، الطبخ (درجة الحرارة)، التبريد، وإعادة التسخين."},
+    {en: "Food Defence & Fraud: Threat assessments and mitigation plans.", ar: "الدفاع عن الغذاء والاحتيال: تقييم التهديدات وخطط التخفيف."}
 ];
 
 let lang = 'en';
@@ -120,22 +101,61 @@ function renderTable() {
     auditItems.forEach((item) => {
         tbody.innerHTML += `<tr>
             <td>${item[lang]}</td>
-            <td><select onchange="calculate()" class="res"><option value="0">Yes</option><option value="1">No</option><option value="0">NA</option></select></td>
-            <td><select class="team"><option>Cleaning</option><option>Maintenance</option><option>Hygienic Practices</option></select></td>
-            <td><input type="checkbox" class="major" onchange="calculate()"></td>
+            <td>
+                <select onchange="calculate()" class="res">
+                    <option value="0">Yes</option>
+                    <option value="1">No</option>
+                </select>
+            </td>
+            <td>
+                <select class="team">
+                    <option>Cleaning</option><option>Maintenance</option><option>Kitchen Operations</option>
+                </select>
+            </td>
+            <td><input type="checkbox" class="major" onchange="calculate()" disabled></td>
             <td><textarea></textarea></td>
-            <td><input type="file" accept="image/*"></td>
+            <td><input type="file" accept="image/*" onchange="previewImage(this)"></td>
         </tr>`;
     });
 }
 
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'thumbnail';
+            input.parentElement.appendChild(img);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
 function calculate() {
     let score = 100;
-    document.querySelectorAll('.res').forEach(s => { if(s.value == "1") score -= 10; });
-    document.querySelectorAll('.major:checked').forEach(() => score -= 10);
+    document.querySelectorAll('tr').forEach(tr => {
+        const resSelect = tr.querySelector('.res');
+        const majorCheck = tr.querySelector('.major');
+        
+        // Enable/Disable Major checkbox
+        majorCheck.disabled = (resSelect.value === "0");
+        if (resSelect.value === "0") majorCheck.checked = false;
+
+        // Scoring Logic: No = -1, Major = -10 (Total)
+        if (resSelect.value === "1") {
+            if (majorCheck.checked) {
+                score -= 10;
+            } else {
+                score -= 1;
+            }
+        }
+    });
+    
     let el = document.getElementById('finalScore');
-    el.innerText = Math.max(0, score);
-    el.className = score >= 90 ? 'score-green' : (score >= 70 ? 'score-yellow' : 'score-red');
+    score = Math.max(0, score);
+    el.innerText = score;
+    el.className = score >= 90 ? 'score-green' : 'score-red';
     updateCharts();
 }
 
@@ -145,33 +165,30 @@ function addHistory() {
     updateCharts();
 }
 
-// Charts
+// Chart Initialization
 const ctx1 = document.getElementById('trendChart').getContext('2d');
 let trendChart = new Chart(ctx1, { type: 'line', data: { labels: history.dates, datasets: [{ label: 'Score Trend', data: history.scores, borderColor: '#008080' }] } });
 
 const ctx2 = document.getElementById('teamChart').getContext('2d');
-let teamChart = new Chart(ctx2, { type: 'bar', data: { labels: ['Cleaning', 'Maintenance', 'Hygiene'], datasets: [{ label: 'Team Compliance', data: [0, 0, 0], backgroundColor: '#008080' }] } });
+let teamChart = new Chart(ctx2, { type: 'bar', data: { labels: ['Cleaning', 'Maintenance', 'Kitchen'], datasets: [{ label: 'Team Compliance (Points)', data: [0, 0, 0], backgroundColor: '#008080' }] } });
 
 function updateCharts() {
     trendChart.data.labels = history.dates;
     trendChart.data.datasets[0].data = history.scores;
     trendChart.update();
 
-    // Logic: Average scores by team
-    let teams = { Cleaning: [], Maintenance: [], 'Hygienic Practices': [] };
+    let teams = { Cleaning: 100, Maintenance: 100, 'Kitchen Operations': 100 };
     document.querySelectorAll('tr').forEach(tr => {
-        const teamSelect = tr.querySelector('.team');
-        const resSelect = tr.querySelector('.res');
-        if(teamSelect && resSelect) {
-            let s = resSelect.value == "1" ? 0 : 100;
-            teams[teamSelect.value].push(s);
-        }
+        const team = tr.querySelector('.team').value;
+        const res = tr.querySelector('.res').value;
+        const major = tr.querySelector('.major').checked;
+        
+        // Penalty calculation for chart visualization
+        let penalty = (res === "1") ? (major ? 10 : 1) : 0;
+        teams[team] -= penalty;
     });
-    teamChart.data.datasets[0].data = [
-        teams.Cleaning.reduce((a,b)=>a+b,0)/Math.max(1, teams.Cleaning.length),
-        teams.Maintenance.reduce((a,b)=>a+b,0)/Math.max(1, teams.Maintenance.length),
-        teams['Hygienic Practices'].reduce((a,b)=>a+b,0)/Math.max(1, teams['Hygienic Practices'].length)
-    ];
+
+    teamChart.data.datasets[0].data = [teams.Cleaning, teams.Maintenance, teams['Kitchen Operations']];
     teamChart.update();
 }
 
