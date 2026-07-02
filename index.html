@@ -6,64 +6,76 @@
     <title>Food Safety Audit Report</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: sans-serif; padding: 10px; background: #f4f4f4; }
-        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        
-        /* Color Palette Classes */
-        .score-green { color: green; font-weight: bold; }
-        .score-yellow { color: orange; font-weight: bold; }
-        .score-red { color: red; font-weight: bold; }
-        
-        .btn-container { display: flex; gap: 10px; margin-top: 10px; }
-        canvas { max-width: 400px; }
+        :root { --teal: #008080; --light-teal: #e0f2f1; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 10px; background: #f9f9f9; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid var(--teal); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { color: var(--teal); }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: var(--teal); color: white; padding: 12px; }
+        td { border: 1px solid #ddd; padding: 8px; }
+        .score-green { color: #008080; font-weight: bold; }
+        .score-yellow { color: #d4a017; font-weight: bold; }
+        .score-red { color: #b22222; font-weight: bold; }
+        .chart-wrapper { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        canvas { max-width: 100%; width: 400px !important; }
+        button { background: var(--teal); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h1>Food Safety Audit Report</h1>
-        <h3>Current Score: <span id="finalScore" class="score-green">100</span>%</h3>
-        <div class="btn-container">
-            <button onclick="exportData()">Export Data (JSON)</button>
-            <button onclick="window.print()">Print Report</button>
-        </div>
-    </div>
+<div class="card">
+    <h1>Food Safety Audit Report</h1>
+    <h3>Score: <span id="finalScore" class="score-green">100</span>%</h3>
+    <button onclick="toggleLang()">EN / AR</button>
+    <button onclick="window.print()">Print Report</button>
+    <button onclick="exportData()">Export JSON</button>
+</div>
 
-    <div class="card" style="overflow-x: auto;">
-        <table id="auditTable">
-            <thead>
-                <tr>
-                    <th>Requirement</th>
-                    <th>Result</th>
-                    <th>Team</th>
-                    <th>Major?</th>
-                    <th>Finding</th>
-                    <th>Image</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
+<div class="card" style="overflow-x: auto;">
+    <table id="auditTable">
+        <thead>
+            <tr>
+                <th id="thReq">Requirement</th>
+                <th>Result</th>
+                <th>Team</th>
+                <th>Major?</th>
+                <th>Finding</th>
+                <th>Image</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<div class="card chart-wrapper">
+    <canvas id="trendChart"></canvas>
+    <canvas id="teamChart"></canvas>
+</div>
 
 <script>
 const auditItems = [
-    {req: "Boundaries of the site/facilities: Identified and maintained to prevent contamination."},
-    {req: "Environment: Consideration of potential contamination sources from local environment."},
-    {req: "Construction and layout: Designed for purpose, maintained to avoid hazards."},
-    {req: "General: Facilities designed to minimize cross-contamination, provide flow, and facilitate hygiene."},
-    {req: "Internal structures and fittings: Suitable materials, maintainable, prevent foreign matter/pests."}
-    // ... add remaining items here
+    {en: "Boundaries of the site/facilities: Identified and maintained.", ar: "حدود الموقع/المرافق: يجب تحديدها وصيانتها."},
+    {en: "Environment: Potential contamination sources.", ar: "البيئة: مراعاة مصادر التلوث."},
+    {en: "Internal structures: Suitable materials.", ar: "الهياكل الداخلية: مواد مناسبة."},
+    {en: "Pest Control: Documented programme.", ar: "مكافحة الآفات: برنامج موثق."},
+    {en: "Cleaning/Disinfection: Verification program.", ar: "التنظيف والتطهير: برنامج للتحقق."}
 ];
 
-function buildTable() {
+let lang = 'en';
+
+function toggleLang() {
+    lang = lang === 'en' ? 'ar' : 'en';
+    renderTable();
+}
+
+function renderTable() {
     const tbody = document.getElementById('tableBody');
-    auditItems.forEach((item, index) => {
+    tbody.innerHTML = '';
+    auditItems.forEach((item) => {
         tbody.innerHTML += `<tr>
-            <td>${item.req}</td>
-            <td><select onchange="calculate()" class="res"><option value="0">Yes</option><option value="1">No</option><option value="0">NA</option></select></td>
-            <td><select><option>Kitchen</option><option>Warehouse</option><option>Maintenance</option></select></td>
+            <td>${item[lang]}</td>
+            <td><select onchange="calculate()" class="res"><option value="0">Yes</option><option value="1">No</option></select></td>
+            <td><select><option>Cleaning</option><option>Maintenance</option><option>Hygienic Practices</option></select></td>
             <td><input type="checkbox" class="major" onchange="calculate()"></td>
             <td><textarea></textarea></td>
             <td><input type="file" accept="image/*"></td>
@@ -75,27 +87,24 @@ function calculate() {
     let score = 100;
     document.querySelectorAll('.res').forEach(s => { if(s.value == "1") score -= 10; });
     document.querySelectorAll('.major:checked').forEach(() => score -= 10);
-    
     let el = document.getElementById('finalScore');
     el.innerText = Math.max(0, score);
-    
-    // Traffic Light System
     el.className = score >= 90 ? 'score-green' : (score >= 70 ? 'score-yellow' : 'score-red');
 }
 
-// Export functionality explanation:
-// It takes your audit progress (scores, findings) and turns it into a JSON file 
-// you can download to your computer. You can upload this file later to restore your work.
 function exportData() {
-    alert("Exporting current audit progress to .json file for your records.");
     const blob = new Blob([JSON.stringify({score: document.getElementById('finalScore').innerText})], {type: 'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'audit-backup.json';
+    a.download = 'audit-report.json';
     a.click();
 }
 
-buildTable();
+// Charts
+new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: ['A1', 'A2'], datasets: [{ label: 'Score Trend', data: [80, 95], borderColor: '#008080' }] } });
+new Chart(document.getElementById('teamChart'), { type: 'bar', data: { labels: ['Cleaning', 'Maint', 'Hygiene'], datasets: [{ label: 'Compliance', data: [90, 80, 85], backgroundColor: '#008080' }] } });
+
+renderTable();
 </script>
 </body>
 </html>
