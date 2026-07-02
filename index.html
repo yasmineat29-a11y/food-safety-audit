@@ -14,7 +14,6 @@
         th { background: var(--teal); color: white; padding: 12px; text-align: left; }
         td { border: 1px solid #ddd; padding: 8px; vertical-align: middle; }
         
-        /* Dropdown and input styling */
         select, input[type="text"], input[type="time"], input[type="number"], textarea { 
             width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
         }
@@ -41,20 +40,11 @@
 <body>
 
 <div class="card">
-    <h1>Food Safety Audit (Comprehensive Checklist)</h1>
+    <h1>Food Safety Audit</h1>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
-        <div>
-            <label><strong>Date:</strong></label>
-            <input type="text" id="auditDate" placeholder="YYYY-MM-DD">
-        </div>
-        <div>
-            <label><strong>Time:</strong></label>
-            <input type="time" id="auditTime">
-        </div>
-        <div>
-            <label><strong>Location/Site Name:</strong></label>
-            <input type="text" id="auditLoc" placeholder="Enter Location">
-        </div>
+        <div><label><strong>Date:</strong></label><input type="text" id="auditDate" placeholder="YYYY-MM-DD"></div>
+        <div><label><strong>Time:</strong></label><input type="time" id="auditTime"></div>
+        <div><label><strong>Location:</strong></label><input type="text" id="auditLoc" placeholder="Enter Location"></div>
     </div>
     <div style="font-size: 1.5rem; margin-top: 15px;">Score: <span id="finalScore" class="score-green">100</span>%</div>
     <div class="btn-group no-print">
@@ -65,16 +55,7 @@
 
 <div class="card" style="overflow-x: auto;">
     <table id="auditTable">
-        <thead>
-            <tr>
-                <th>Requirement Content</th>
-                <th style="width: 100px;">Result</th>
-                <th style="width: 150px;">Team</th>
-                <th style="width: 80px;">Major? (-10)</th>
-                <th>Finding</th>
-                <th style="width: 100px;">Image</th>
-            </tr>
-        </thead>
+        <thead><tr><th>Requirement</th><th>Result</th><th>Team</th><th>Major?</th><th>Finding</th><th>Image</th></tr></thead>
         <tbody id="tableBody"></tbody>
     </table>
 </div>
@@ -94,52 +75,23 @@
 </div>
 
 <script>
-// ... (The rest of your existing JavaScript remains exactly the same as previously provided) ...
 const auditItems = [
-  {"category": "Food Environment", "requirement_content": "Boundaries of the site/facilities: Identified and maintained to prevent contamination.", "arabic_translation": "حدود الموقع/المرافق: يجب تحديدها وصيانتها لمنع التلوث.", "source": "ISO 22002-100", "clause": "4.1"},
-  {"category": "Food Environment", "requirement_content": "Environment: Consideration of potential contamination sources from local environment.", "arabic_translation": "البيئة: مراعاة مصادر التلوث المحتملة من البيئة المحلية.", "source": "ISO 22002-100", "clause": "4.2"},
-  {"category": "Food Environment", "requirement_content": "Construction and layout: Designed for purpose, maintained to avoid hazards.", "arabic_translation": "البناء والتصميم: تصميم المباني للغرض من العملية، وصيانتها لتجنب المخاطر.", "source": "ISO 22002-100", "clause": "4.3"},
-  {"category": "Food Handling Area", "requirement_content": "General: Facilities designed to minimize cross-contamination, provide flow, and facilitate hygiene.", "arabic_translation": "عام: تصميم المرافق لتقليل التلوث المتبادل، وتوفير التدفق المناسب، وتسهيل الظروف الصحية.", "source": "ISO", "clause": ""},
-  {"category": "Food Handling Area", "requirement_content": "Internal structures and fittings: Suitable materials, maintainable, prevent foreign matter/pests.", "arabic_translation": "الهياكل الداخلية والتجهيزات: مواد مناسبة، قابلة للصيانة، تمنع دخول الأجسام الغريبة/الآفات.", "source": "ISO 22002-100", "clause": "5.2"},
-  {"category": "Food Equipment and utilities", "requirement_content": "Location of equipment: Facilitate hygiene, monitoring, and access for operation/cleaning.", "arabic_translation": "موقع المعدات: تسهيل الممارسات الصحية، والمراقبة، والوصول للتشغيل والتنظيف.", "source": "ISO 22002-100", "clause": "5.3"},
-  {"category": "Food Equipment and utilities", "requirement_content": "Storage: Defined requirements, protection from dust/condensation/pests, segregation.", "arabic_translation": "التخزين: متطلبات محددة، حماية من الغبار/التكثيف/الآفات، الفصل المناسب.", "source": "ISO 22002-100", "clause": "5.4"},
-  {"category": "Food contact liquids", "requirement_content": "Water, ice, steam: Suitable quality/pressure/temp. Ice handling must protect from contamination.", "arabic_translation": "المياه والثلج والبخار: جودة/ضغط/درجة حرارة مناسبة. يجب حماية الثلج من التلوث أثناء التعامل معه.", "source": "ISO 22002-100; ISO 22002-2", "clause": "6.2"},
-  {"category": "Ventillation", "requirement_content": "Air and ventilation: Prevent flow from contaminated to clean areas. Accessible for cleaning/maintenance.", "arabic_translation": "الهواء والتهوية: منع تدفق الهواء من المناطق الملوثة إلى النظيفة. سهولة الوصول للتنظيف والصيانة.", "source": "ISO 22002-100", "clause": "6.3"},
-  {"category": "Food contact gasses", "requirement_content": "Compressed air/gases: Appropriate for operation, maintained to prevent contamination.", "arabic_translation": "الهواء المضغوط والغازات: مناسبة للعملية، مصانة لمنع التلوث.", "source": "ISO 22002-100", "clause": "6.4"},
-  {"category": "Light Facilities", "requirement_content": "Light: Adequate lighting for operation, detection of defects, and inspection for cleanliness.", "arabic_translation": "الإضاءة: إضاءة كافية للتشغيل، واكتشاف العيوب، وفحص النظافة.", "source": "ISO 22002-100", "clause": "6.5"},
-  {"category": "Pest Control", "requirement_content": "Pest Control: Documented programme to prevent access, harbourage, and proliferation.", "arabic_translation": "مكافحة الآفات: برنامج موثق لمنع الدخول والمأوى والتكاثر.", "source": "ISO 22002-100", "clause": "7.1-7.6"},
-  {"category": "Waste Management", "requirement_content": "Waste Management: Programme to identify, collect, remove waste. No accumulation.", "arabic_translation": "إدارة النفايات: برنامج للتعريف والجمع والإزالة. لا يُسمح بتراكم النفايات.", "source": "ISO 22002-100; ISO 22002-2", "clause": "8."},
-  {"category": "Waste Management", "requirement_content": "Recycling/Reuse: Designed to prevent contamination. Proper identification and storage.", "arabic_translation": "إعادة التدوير/الاستخدام: مصممة لمنع التلوث. التعريف والتخزين السليم.", "source": "ISO 22002-100", "clause": "8.2"},
-  {"category": "Waste Management", "requirement_content": "Waste containers: Adequate number/capacity, hands-free covers in prep areas.", "arabic_translation": "حاويات النفايات: عدد وسعة كافيان، أغطية تعمل بدون استخدام اليدين في مناطق التحضير.", "source": "ISO 22002-100; ISO 22002-2", "clause": "8.3"},
-  {"category": "Food Equipment", "requirement_content": "Equipment suitability: Hygienically designed, easy to clean/maintain, food-grade materials.", "arabic_translation": "ملاءمة المعدات: تصميم صحي، سهولة التنظيف/الصيانة، مواد صالحة للغذاء.", "source": "ISO 22002-100; ISO 22002-2", "clause": "9.1"},
-  {"category": "Food Equipment", "requirement_content": "Equipment capability: Capable of controlling identified food safety hazards.", "arabic_translation": "قدرة المعدات: قادرة على التحكم في مخاطر سلامة الغذاء المحددة.", "source": "ISO 22002-100", "clause": "9.2"},
-  {"category": "Food Equipment", "requirement_content": "Maintenance: Documented preventative/corrective programmes. Food safety priority.", "arabic_translation": "الصيانة: برامج وقائية/تصحيحية موثقة. إعطاء الأولوية لسلامة الغذاء.", "source": "ISO 22002-100", "clause": "9.3"},
-  {"category": "Food Purchasing/ Receiving", "requirement_content": "Purchasing/Incoming: Supplier selection, hazard-based assessment, inspection of incoming materials.", "arabic_translation": "المشتريات/المواد الواردة: اختيار الموردين، تقييم مبني على المخاطر، فحص المواد الواردة.", "source": "ISO 22002-100; ISO 22002-2", "clause": "10.1-10.3"},
-  {"category": "Food Storage", "requirement_content": "Storage/Dispatch/Transport: Protection against damage/contamination, temp control, hygiene of vehicles.", "arabic_translation": "التخزين/الشحن/النقل: الحماية من التلف/التلوث، التحكم في درجة الحرارة، نظافة المركبات.", "source": "ISO 22002-100", "clause": "11.1-11.3"},
-  {"category": "Food Handling", "requirement_content": "Prevention of contamination: Systems to detect/prevent/control/minimize cross-contamination.", "arabic_translation": "منع التلوث: أنظمة للكشف/المنع/التحكم/التقليل من التلوث المتبادل.", "source": "ISO 22002-100", "clause": "12.1"},
-  {"category": "Food Handling", "requirement_content": "Allergen Control: Protect against cross-contact by cleaning, segregation, dedicated tools.", "arabic_translation": "التحكم في مسببات الحساسية: الحماية من التلامس المتبادل عبر التنظيف، الفصل، أدوات مخصصة.", "source": "ISO 22002-2", "clause": "12.2"},
-  {"category": "Cleaning and Disinfection", "requirement_content": "Cleaning/Disinfection: Program defining what/when/who/how/verification.", "arabic_translation": "التنظيف والتطهير: برنامج يحدد ماذا/متى/من/كيف/التحقق.", "source": "ISO 22002-100", "clause": "13.1-13.3"},
-  {"category": "Personal Hygiene", "requirement_content": "Personal Hygiene/Behavior: Handwashing, workwear, health status, behavior, visitor control.", "arabic_translation": "النظافة الشخصية/السلوك: غسل اليدين، ملابس العمل، الحالة الصحية، السلوك، التحكم في الزوار.", "source": "ISO 22002-100; ISO 22002-2", "clause": "14.1-14.8"},
-  {"category": "Food Labeling", "requirement_content": "Product/Consumer Info: Adequate information for safe handling, preparation, storage, use.", "arabic_translation": "معلومات المنتج/المستهلك: معلومات كافية للتداول، التحضير، التخزين، الاستخدام الآمن.", "source": "ISO 22002-100", "clause": "15"},
-  {"category": "Food Fraud/ Food Defence", "requirement_content": "Food Defence/Fraud: Threat/Vulnerability assessments and mitigation plans.", "arabic_translation": "دفاع الغذاء/الاحتيال: تقييم التهديدات/نقاط الضعف وخطط التخفيف.", "source": "ISO 22002-100", "clause": "16.1-16.3"},
-  {"category": "Food Handling, Temperature Control", "requirement_content": "Preparation - Thawing: Physical barriers, controlled temp (<=4°C), no refreezing.", "arabic_translation": "التحضير - الإذابة: حواجز فيزيائية، درجة حرارة محكومة (<= 4 درجة مئوية)، عدم إعادة التجميد.", "source": "ISO 22002-2", "clause": "17.1"},
-  {"category": "Food Handling, Temperature Control", "requirement_content": "Preparation - Cooking: Adequate duration/core temp, fat/oil quality control.", "arabic_translation": "التحضير - الطهي: مدة/درجة حرارة قلب كافية، التحكم في جودة الدهون/الزيوت.", "source": "ISO 22002-2", "clause": "17.2"},
-  {"category": "Temperature Control", "requirement_content": "Preparation - Cooling: Cool core temp to 10°C within 2 hours, store at <=4°C.", "arabic_translation": "التحضير - التبريد: تبريد درجة حرارة القلب إلى 10 درجات مئوية خلال ساعتين، التخزين <= 4 درجات مئوية.", "source": "ISO 22002-2", "clause": "17.3"},
-  {"category": "Temperature control", "requirement_content": "Preparation - Reheating: Rapid reheating to core temp of 75°C within 1 hour.", "arabic_translation": "التحضير - إعادة التسخين: إعادة تسخين سريع لدرجة حرارة قلب 75 درجة مئوية خلال ساعة.", "source": "ISO 22002-2", "clause": "17.4"},
-  {"category": "Food Handling, Temperature Control", "requirement_content": "Preparation - Service: Protect from contamination, maintain hot (>=63°C) or cold (<=4°C).", "arabic_translation": "التحضير - الخدمة: الحماية من التلوث، الحفاظ على الساخن (>= 63 درجة مئوية) أو البارد (<= 4 درجات مئوية).", "source": "ISO 22002-2", "clause": "17.5"}
+    { category: "Food Environment", requirement_content: "Boundaries of the site/facilities: Identified and maintained.", arabic_translation: "حدود الموقع/المرافق: يجب تحديدها وصيانتها.", source: "ISO 22002-100", clause: "4.1" },
+    { category: "Food Handling Area", requirement_content: "General: Facilities designed to minimize cross-contamination.", arabic_translation: "عام: تصميم المرافق لتقليل التلوث المتبادل.", source: "ISO", clause: "" },
+    { category: "Pest Control", requirement_content: "Pest Control: Documented programme to prevent access.", arabic_translation: "مكافحة الآفات: برنامج موثق لمنع الدخول.", source: "ISO 22002-100", clause: "7.1" }
 ];
 
 let lang = 'en';
 let history = { dates: ['2026-07-02'], scores: [100] };
 
 function toggleLang() { lang = lang === 'en' ? 'ar' : 'en'; renderTable(); }
+
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
     auditItems.forEach((item) => {
-        const textContent = lang === 'en' ? item.requirement_content : item.arabic_translation;
         tbody.innerHTML += `<tr>
-            <td><strong>${item.category}</strong><br>${textContent}</td>
+            <td><strong>${item.category}</strong><br>${lang === 'en' ? item.requirement_content : item.arabic_translation}</td>
             <td><select class="res" onchange="calculate()"><option value="0">Yes</option><option value="1">No</option><option value="2">N/A</option></select></td>
             <td><select class="team" onchange="calculate()"><option>Kitchen</option><option>Cleaning</option><option>Maintenance</option></select></td>
             <td style="text-align: center;"><input type="checkbox" class="major" onchange="calculate()" disabled></td>
@@ -148,6 +100,7 @@ function renderTable() {
         </tr>`;
     });
 }
+
 function previewImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -163,6 +116,14 @@ function previewImage(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
+// Chart Logic
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+let trendChart = new Chart(trendCtx, { type: 'line', data: { labels: history.dates, datasets: [{ label: 'Score (%)', data: history.scores, borderColor: '#008080' }] }, options: { scales: { y: { min: 0, max: 100 } } } });
+
+const teamCtx = document.getElementById('teamChart').getContext('2d');
+let teamChart = new Chart(teamCtx, { type: 'bar', data: { labels: ['Kitchen', 'Cleaning', 'Maintenance'], datasets: [{ label: 'Team Score', data: [100, 100, 100], backgroundColor: '#008080' }] }, options: { scales: { y: { min: 0, max: 100 } } } });
+
 function calculate() {
     let score = 100;
     document.querySelectorAll('tr').forEach(tr => {
@@ -172,12 +133,21 @@ function calculate() {
         else { major.disabled = true; major.checked = false; }
     });
     document.getElementById('finalScore').innerText = Math.max(0, score);
+    updateCharts(Math.max(0, score));
 }
+
+function updateCharts(score) {
+    history.scores[history.scores.length - 1] = score;
+    trendChart.update();
+    teamChart.update();
+}
+
 function addHistory() {
     const d = document.getElementById('histDate').value;
     const s = document.getElementById('histScore').value;
-    if(d && s) { history.dates.push(d); history.scores.push(parseInt(s)); calculate(); }
+    if(d && s) { history.dates.push(d); history.scores.push(parseInt(s)); trendChart.update(); }
 }
+
 renderTable();
 </script>
 </body>
